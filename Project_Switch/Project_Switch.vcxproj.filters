@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="source\main.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Object.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Scene.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SceneManager.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Vector2D.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Time.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rect.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Camera.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Rigidbody2D.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Component.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Transform.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\SpriteRenderer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Input.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\GameManager.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Renderer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\TextureManager.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Collider2D.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\BoxCollider2D.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\Animator.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\Camera.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Object.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Scene.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\SceneManager.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Time.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Transform.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Vector2D.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rect.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\SpriteRenderer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Collider2D.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\BoxCollider2D.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Rigidbody2D.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Component.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\SDL_Switch.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Input.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\GameManager.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Renderer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Structs.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\TextureManager.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Animator.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\SDL_Extension.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{a4b48dfc-adad-4b2c-8dc6-54880aa3a67e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{cb5bbdd9-bed3-4126-9aef-20d8bc88157f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
