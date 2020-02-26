@@ -3,7 +3,7 @@
 class Collider2D : public Component
 {
 public:
-
+	Vector2D size;
 	bool isTrigger;
 	Vector2D offset;
 	float density;

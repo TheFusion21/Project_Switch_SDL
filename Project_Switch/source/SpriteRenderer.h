@@ -5,7 +5,7 @@
 class SpriteRenderer : public Renderer
 {
 public:
-	Sprite sprite;
+	Sprite * sprite;
 	bool flipX = false;
 	bool flipY = false;
 	Color color = { 1, 1, 1, 1 };

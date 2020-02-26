@@ -14,7 +14,7 @@ public:
 	int layer = 0;
 	Transform transform;
 	Object(float x, float y);
-
+	~Object();
 	
 	//Awake is called when the script instance is being loaded.
 	virtual void Awake() = 0;

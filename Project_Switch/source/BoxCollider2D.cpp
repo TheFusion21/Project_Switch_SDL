@@ -5,9 +5,9 @@
 #include "SDL_Extension.h"
 const std::string BoxCollider2D::name = "Box Collider2D";
 
-BoxCollider2D::BoxCollider2D(Object * _gameObject) : Collider2D(_gameObject), size(1, 1), edgeRadius(0)
+BoxCollider2D::BoxCollider2D(Object * _gameObject) : Collider2D(_gameObject), edgeRadius(0)
 {
-	offset = Vector2D(0, 0);
+
 }
 
 void BoxCollider2D::Render()

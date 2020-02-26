@@ -12,7 +12,8 @@ SceneManager::SceneManager()
 {}
 
 SceneManager::~SceneManager()
-{}
+{
+}
 
 
 void SceneManager::Run(Scene *initialScene)

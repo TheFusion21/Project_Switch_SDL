@@ -26,9 +26,9 @@ struct SpriteSheet
 {
 	std::map<std::pair<int, int>, Sprite> sprites;
 
-	Sprite& GetSpriteAt(int x, int y)
+	Sprite* GetSpriteAt(int x, int y)
 	{
-		return sprites[std::pair<int, int>(x, y)];
+		return &sprites[std::pair<int, int>(x, y)];
 	}
 	static SpriteSheet FromTileCount(std::string filename, int rows, int columns)
 	{
@@ -90,7 +90,7 @@ struct SpriteSheet
 					width,
 					height
 				};
-				sheet.sprites.insert(std::pair<std::pair<int, int>, Sprite>(std::pair<int, int>(x, y), sprite));
+				sheet.sprites.insert(std::pair<std::pair<int, int>, Sprite>(std::pair<int, int>(x/width, y/ height), sprite));
 			}
 		}
 		return sheet;

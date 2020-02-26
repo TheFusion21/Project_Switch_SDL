@@ -3,7 +3,7 @@
 class BoxCollider2D : public Collider2D
 {
 public:
-	Vector2D size;
+	
 	float edgeRadius;
 
 	static const std::string name;

@@ -24,15 +24,127 @@ private:
 	int spriteSize = 74;
 	Vector2D speed;
 	SpriteSheet sheet;
+	Animator * animator;
+	unsigned int idleAnimIndex, rightAnimIndex, rightRevAnimIndex, leftAnimIndex, leftRevAnimIndex;
+	unsigned int idle2AnimIndex, upAnimIndex, upRevIndex, downAnimIndex, downRevAnimIndex;
+	unsigned int vToHAnimIndex, hToVAnimIndex;
 public:
+	bool verticalMode = true;
+	bool canShoot = true;
+	bool canMove = true;
 	Player() : Object(0, 0), speed(4, 4)
 	{
+		
+		//COLLIDER SETUP
 		BoxCollider2D * collider2D = (BoxCollider2D*)AddComponent(new BoxCollider2D(this));
-		collider2D->size.Set(0.25f, 0.578125f);
+		collider2D->size.Set(0.2734375f, 0.578125f);
 		collider2D->edgeRadius = 0.09375f;
-		Animator* animator = (Animator*)AddComponent(new Animator(this));
+
+		//ANIMATION TREE
+		
+		animator = (Animator*)AddComponent(new Animator(this));
 		sheet = SpriteSheet::FromTileSize("romfs:/Player.png", spriteSize, spriteSize);
 		
+		//IDLE ANIMATION
+		Animation idleAnim;
+		Key idleKey1;
+		idleKey1.sprite = sheet.GetSpriteAt(0, 0);
+		idleAnim.AddKey(0, idleKey1);
+		Key idleKey2;
+		idleKey2.sprite = sheet.GetSpriteAt(0, 0);
+		idleAnim.AddKey(1, idleKey2);
+		idleAnim.SetSamples(2);
+		idleAnimIndex = animator->AddAnimation(idleAnim);
+
+		//RIGHT IN ANIMATION
+		Animation rightAnim;
+		for (int i = 0; i < 6; i++)
+		{
+			Key rightKey;
+			rightKey.sprite = sheet.GetSpriteAt(i, 1);
+			rightAnim.AddKey(i, rightKey);
+		}
+		rightAnim.SetSamples(30);
+		rightAnim.loop = false;
+		rightAnimIndex = animator->AddAnimation(rightAnim);
+
+		//RIGHT OUT ANIMATION
+		Animation rightRevAnim;
+		for (int i = 0; i < 6; i++)
+		{
+			Key rightRevKey;
+			rightRevKey.sprite = sheet.GetSpriteAt(5-i, 1);
+			rightRevAnim.AddKey(i, rightRevKey);
+		}
+		rightRevAnim.SetSamples(30);
+		rightRevAnim.loop = false;
+		rightRevAnimIndex = animator->AddAnimation(rightRevAnim);
+
+		//LEFT IN ANIMATION
+		Animation leftAnim;
+		for (int i = 0; i < 6; i++)
+		{
+			Key leftKey;
+			leftKey.sprite = sheet.GetSpriteAt(i, 0);
+			leftAnim.AddKey(i, leftKey);
+		}
+		leftAnim.SetSamples(30);
+		leftAnim.loop = false;
+		leftAnimIndex = animator->AddAnimation(leftAnim);
+
+		//LEFT OUT ANIMATION
+		Animation leftRevAnim;
+		for (int i = 0; i < 6; i++)
+		{
+			Key leftRevKey;
+			leftRevKey.sprite = sheet.GetSpriteAt(5-i, 0);
+			leftRevAnim.AddKey(i, leftRevKey);
+		}
+		leftRevAnim.SetSamples(30);
+		leftRevAnim.loop = false;
+		leftRevAnimIndex = animator->AddAnimation(leftRevAnim);
+
+		//RIGHT TRANSITIONS
+
+		//FROM IDLE TO RIGHT IN
+		Transition idleToRight(idleAnimIndex, rightAnimIndex);
+		idleToRight.hasExitTime = false;
+		idleToRight.trigger = "iright";
+		animator->AddTransition(idleToRight);
+
+		//FROM RIGHT IN TO RIGHT OUT
+		Transition rightToRight(rightAnimIndex, rightRevAnimIndex);
+		rightToRight.hasExitTime = true;
+		rightToRight.trigger = "oright";
+		animator->AddTransition(rightToRight);
+
+		//FROM RIGHT OUT TO IDLE
+		Transition rightToIdle(rightRevAnimIndex, idleAnimIndex);
+		rightToIdle.hasExitTime = true;
+		rightToIdle.trigger = "";
+		animator->AddTransition(rightToIdle);
+
+		//LEFT TRANSITIONS
+
+		//FROM IDLE TO LEFT IN
+		Transition idleToLeft(idleAnimIndex, leftAnimIndex);
+		idleToLeft.hasExitTime = false;
+		idleToLeft.trigger = "ileft";
+		animator->AddTransition(idleToLeft);
+
+		//FROM LEFT IN TO LEFT OUT
+		Transition leftToLeft(leftAnimIndex, leftRevAnimIndex);
+		leftToLeft.hasExitTime = true;
+		leftToLeft.trigger = "oleft";
+		animator->AddTransition(leftToLeft);
+
+		//FROM LEFT OUT TO IDLE
+		Transition leftToIdle(leftRevAnimIndex, idleAnimIndex);
+		leftToIdle.hasExitTime = true;
+		leftToIdle.trigger = "";
+		animator->AddTransition(leftToIdle);
+
+		SDL_Log("Created Player");
 	}
 	void Awake()
 	{
@@ -40,21 +152,42 @@ public:
 	}
 	void Start()
 	{
-		SpriteRenderer* renderer = (SpriteRenderer*)GetComponent(SpriteRenderer::name);
-		if(renderer != nullptr)
-			renderer->sprite = sheet.GetSpriteAt(0, 0);
+		if (!verticalMode)
+			animator->OverrideCurrentAnimation(idle2AnimIndex);
 	}
 	void Update()
 	{
 		//Vertical Stick assigned to Horizontal Movement
-		if (Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V) != 0)
+		if (abs(Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V)) > 0.02f)
 		{
-			transform.position.SetX(transform.position.GetX() + Time::deltaTime * speed.GetX() * Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V));
+			if (canMove)
+			{
+				float val = Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V);
+				if (val > 0)
+				{
+					animator->SetTrigger("oleft");
+					animator->SetTrigger("iright");
+				}
+				else if (val < 0)
+				{
+					animator->SetTrigger("oright");
+					animator->SetTrigger("ileft");
+				}
+				transform.position.SetX(transform.position.GetX() + Time::deltaTime * speed.GetX() * val);
+			}
+		}
+		else
+		{
+			animator->SetTrigger("oright");
+			animator->SetTrigger("oleft");
 		}
 		//Horizontal Stick assigned to Vertical Movement
-		if (Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H) != 0)
+		if (abs(Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H)) > 0.02f)
 		{
-			transform.position.SetY(transform.position.GetY() + Time::deltaTime * speed.GetY() * Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H));
+			if (canMove)
+			{
+				transform.position.SetY(transform.position.GetY() + Time::deltaTime * speed.GetY() * Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H));
+			}
 		}
 	}
 };

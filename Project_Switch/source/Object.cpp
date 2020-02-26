@@ -10,13 +10,22 @@ Object::Object(float x, float y) : enabled(true), layer(0), transform(this)
 	components.push_back(new SpriteRenderer(this));
 }
 
+Object::~Object()
+{
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
+	{
+		delete (*it);
+		components.erase(it);
+	}
+}
+
 void Object::Awake()
 {
 
 }
 void Object::Start()
 {
-
+	
 }
 void Object::Update()
 {

@@ -35,7 +35,10 @@ void Scene::Render()
 }
 void Scene::Exit()
 {
-
+	for (std::vector<Object*>::iterator it = _objects.begin(); it != _objects.end(); ++it)
+	{
+		delete (*it);
+	}
 }
 
 void Scene::Instantiate(Object* object)
