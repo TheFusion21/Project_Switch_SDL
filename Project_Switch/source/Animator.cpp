@@ -153,7 +153,43 @@ void Animator::UpdateAnimations()
 	if (prevKey == nextKey)
 	{
 		Key key = curAnim.keys[prevKey];
-		if (key.sprite != nullptr)
+		for (std::map<Vector2D*, Vector2D>::iterator it = key.vecs.begin(); it != key.vecs.end(); ++it)
+		{
+			if (it->first != nullptr)
+			{
+				//it->first->Set(it->second.GetX(), it->second.GetY());
+				*it->first = it->second;
+			}
+		}
+		for (std::map<float*, float>::iterator it = key.floats.begin(); it != key.floats.end(); ++it)
+		{
+			if (it->first != nullptr)
+			{
+				*it->first = it->second;
+			}
+		}
+		for (std::map<int*, int>::iterator it = key.ints.begin(); it != key.ints.end(); ++it)
+		{
+			if (it->first != nullptr)
+			{
+				*it->first = it->second;
+			}
+		}
+		for (std::map<bool*, bool>::iterator it = key.bools.begin(); it != key.bools.end(); ++it)
+		{
+			if (it->first != nullptr)
+			{
+				*it->first = it->second;
+			}
+		}
+		for (std::map<Sprite**, Sprite*>::iterator it = key.sprites.begin(); it != key.sprites.end(); ++it)
+		{
+			if (it->first != nullptr)
+			{
+				*it->first = it->second;
+			}
+		}
+		/*if (key.sprite != nullptr)
 		{
 			SpriteRenderer * renderer = (SpriteRenderer*)gameObject->GetComponent(SpriteRenderer::name);
 			if(renderer != nullptr)
@@ -170,7 +206,7 @@ void Animator::UpdateAnimations()
 			Collider2D * collider = (Collider2D*)gameObject->GetComponent(Collider2D::name);
 			if (collider != nullptr)
 				collider->offset = *key.colliderOffset;
-		}
+		}*/
 	}
 	time += Time::deltaTime;
 }
@@ -224,6 +260,11 @@ int Animator::AddTransition(Transition &transition)
 	}
 	transitions.push_back(transition);
 	return 0;
+}
+
+const unsigned int Animator::GetCurrentAnimationID()
+{
+	return curAnimIndex;
 }
 
 void Animator::SetTrigger(std::string name)

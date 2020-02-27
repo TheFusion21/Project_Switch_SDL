@@ -6,9 +6,11 @@
 #include <vector>
 struct Key
 {
-	Sprite * sprite = nullptr;
-	Vector2D * colliderSize = nullptr;
-	Vector2D * colliderOffset = nullptr;
+	std::map<Vector2D*, Vector2D> vecs;
+	std::map<float*, float> floats;
+	std::map<int*, int> ints;
+	std::map<bool*, bool> bools;
+	std::map<Sprite**, Sprite*> sprites;
 };
 class Animation
 {
@@ -70,7 +72,7 @@ public:
 	Animation * GetAnimationAt(const unsigned int index);
 	void OverrideCurrentAnimation(const unsigned int index);
 	int AddTransition(Transition &transition);
-
+	const unsigned int GetCurrentAnimationID();
 	void SetTrigger(std::string name);
 };
 #endif

@@ -17,7 +17,6 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #include "SDL_Switch.h"
-
 class Player : public Object
 {
 private:
@@ -26,12 +25,14 @@ private:
 	SpriteSheet sheet;
 	Animator * animator;
 	unsigned int idleAnimIndex, rightAnimIndex, rightRevAnimIndex, leftAnimIndex, leftRevAnimIndex;
-	unsigned int idle2AnimIndex, upAnimIndex, upRevIndex, downAnimIndex, downRevAnimIndex;
+	unsigned int idle2AnimIndex, upAnimIndex, upRevAnimIndex, downAnimIndex, downRevAnimIndex;
 	unsigned int vToHAnimIndex, hToVAnimIndex;
-public:
-	bool verticalMode = true;
+	bool verticalMode = false;
+	bool inTransition = false;
 	bool canShoot = true;
 	bool canMove = true;
+public:
+	
 	Player() : Object(0, 0), speed(4, 4)
 	{
 		
@@ -41,17 +42,21 @@ public:
 		collider2D->edgeRadius = 0.09375f;
 
 		//ANIMATION TREE
-		
+		SpriteRenderer * renderer = (SpriteRenderer*)GetComponent(SpriteRenderer::name);
 		animator = (Animator*)AddComponent(new Animator(this));
 		sheet = SpriteSheet::FromTileSize("romfs:/Player.png", spriteSize, spriteSize);
 		
+		//VERTICAL 
+
 		//IDLE ANIMATION
 		Animation idleAnim;
 		Key idleKey1;
-		idleKey1.sprite = sheet.GetSpriteAt(0, 0);
+		idleKey1.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite,sheet.GetSpriteAt(0, 0)));
+		idleKey1.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.2734375f, 0.578125f)));
 		idleAnim.AddKey(0, idleKey1);
 		Key idleKey2;
-		idleKey2.sprite = sheet.GetSpriteAt(0, 0);
+		idleKey2.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(0, 0)));
+		idleKey2.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.2734375f, 0.578125f)));
 		idleAnim.AddKey(1, idleKey2);
 		idleAnim.SetSamples(2);
 		idleAnimIndex = animator->AddAnimation(idleAnim);
@@ -61,10 +66,10 @@ public:
 		for (int i = 0; i < 6; i++)
 		{
 			Key rightKey;
-			rightKey.sprite = sheet.GetSpriteAt(i, 1);
+			rightKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(i, 1)));
 			rightAnim.AddKey(i, rightKey);
 		}
-		rightAnim.SetSamples(30);
+		rightAnim.SetSamples(60);
 		rightAnim.loop = false;
 		rightAnimIndex = animator->AddAnimation(rightAnim);
 
@@ -73,10 +78,10 @@ public:
 		for (int i = 0; i < 6; i++)
 		{
 			Key rightRevKey;
-			rightRevKey.sprite = sheet.GetSpriteAt(5-i, 1);
+			rightRevKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(5 - i, 1)));
 			rightRevAnim.AddKey(i, rightRevKey);
 		}
-		rightRevAnim.SetSamples(30);
+		rightRevAnim.SetSamples(60);
 		rightRevAnim.loop = false;
 		rightRevAnimIndex = animator->AddAnimation(rightRevAnim);
 
@@ -85,10 +90,10 @@ public:
 		for (int i = 0; i < 6; i++)
 		{
 			Key leftKey;
-			leftKey.sprite = sheet.GetSpriteAt(i, 0);
+			leftKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(i, 0)));
 			leftAnim.AddKey(i, leftKey);
 		}
-		leftAnim.SetSamples(30);
+		leftAnim.SetSamples(60);
 		leftAnim.loop = false;
 		leftAnimIndex = animator->AddAnimation(leftAnim);
 
@@ -97,10 +102,10 @@ public:
 		for (int i = 0; i < 6; i++)
 		{
 			Key leftRevKey;
-			leftRevKey.sprite = sheet.GetSpriteAt(5-i, 0);
+			leftRevKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(5 - i, 0)));
 			leftRevAnim.AddKey(i, leftRevKey);
 		}
-		leftRevAnim.SetSamples(30);
+		leftRevAnim.SetSamples(60);
 		leftRevAnim.loop = false;
 		leftRevAnimIndex = animator->AddAnimation(leftRevAnim);
 
@@ -144,6 +149,158 @@ public:
 		leftToIdle.trigger = "";
 		animator->AddTransition(leftToIdle);
 
+		//HORIZONTAL
+
+		//IDLE ANIMATION
+		Animation idle2Anim;
+		Key idle2Key1;
+		idle2Key1.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(0, 3)));
+		idle2Key1.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.578125f, 0.15625f)));
+		idle2Anim.AddKey(0, idle2Key1);
+		Key idle2Key2;
+		idle2Key2.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(0, 3)));
+		idle2Key2.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.578125f, 0.15625f)));
+		idle2Anim.AddKey(1, idle2Key2);
+		idle2Anim.SetSamples(2);
+		idle2AnimIndex = animator->AddAnimation(idle2Anim);
+
+		//UP IN ANIMATION
+		Animation upAnim;
+		for (int i = 0; i < 7; i++)
+		{
+			Key upKey;
+			upKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(i, 3)));
+			upAnim.AddKey(i, upKey);
+		}
+		upAnim.SetSamples(60);
+		upAnim.loop = false;
+		upAnimIndex = animator->AddAnimation(upAnim);
+
+		//UP OUT ANIMATION
+		Animation upRevAnim;
+		for (int i = 0; i < 7; i++)
+		{
+			Key upRevKey;
+			upRevKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(6 - i, 3)));
+			upRevAnim.AddKey(i, upRevKey);
+		}
+		upRevAnim.SetSamples(60);
+		upRevAnim.loop = false;
+		upRevAnimIndex = animator->AddAnimation(upRevAnim);
+
+		//DOWN IN ANIMATION
+		Animation downAnim;
+		for (int i = 0; i < 7; i++)
+		{
+			Key downKey;
+			downKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(i, 4)));
+			downAnim.AddKey(i, downKey);
+		}
+		downAnim.SetSamples(60);
+		downAnim.loop = false;
+		downAnimIndex = animator->AddAnimation(downAnim);
+
+		//DOWN OUT ANIMATION
+		Animation downRevAnim;
+		for (int i = 0; i < 7; i++)
+		{
+			Key downRevKey;
+			downRevKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(6 - i, 4)));
+			downRevAnim.AddKey(i, downRevKey);
+		}
+		downRevAnim.SetSamples(60);
+		downRevAnim.loop = false;
+		downRevAnimIndex = animator->AddAnimation(downRevAnim);
+
+		//UP TRANSITIONS
+
+		//FROM IDLE TO UP IN
+		Transition idleToUp(idle2AnimIndex, upAnimIndex);
+		idleToUp.hasExitTime = false;
+		idleToUp.trigger = "iup";
+		animator->AddTransition(idleToUp);
+
+		//FROM UP IN TO UP OUT
+		Transition upToUp(upAnimIndex, upRevAnimIndex);
+		upToUp.hasExitTime = true;
+		upToUp.trigger = "oup";
+		animator->AddTransition(upToUp);
+
+		//FROM UP OUT TO IDLE
+		Transition upToIdle(upRevAnimIndex, idle2AnimIndex);
+		upToIdle.hasExitTime = true;
+		upToIdle.trigger = "";
+		animator->AddTransition(upToIdle);
+
+		//DOWN TRANSITIONS
+		//FROM IDLE TO DOWN IN
+		Transition idleToDown(idle2AnimIndex, downAnimIndex);
+		idleToDown.hasExitTime = false;
+		idleToDown.trigger = "idown";
+		animator->AddTransition(idleToDown);
+
+		//FROM DOWN IN TO DOWN OUT
+		Transition downToDown(downAnimIndex, downRevAnimIndex);
+		downToDown.hasExitTime = true;
+		downToDown.trigger = "odown";
+		animator->AddTransition(downToDown);
+
+		//FROM DOWN OUT TO IDLE
+		Transition downToIdle(downRevAnimIndex, idle2AnimIndex);
+		downToIdle.hasExitTime = true;
+		downToIdle.trigger = "";
+		animator->AddTransition(downToIdle);
+
+		//TRANSITION ANIMATION
+
+		//V TO H ANIMATION
+		Animation vToHAnim;
+		for (int i = 0; i < 11; i++)
+		{
+			Key vToHKey;
+			vToHKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(i, 2)));
+			vToHAnim.AddKey(i, vToHKey);
+		}
+		vToHAnim.SetSamples(30);
+		vToHAnim.loop = false;
+		vToHAnimIndex = animator->AddAnimation(vToHAnim);
+
+		//H TO V ANIMATION
+
+		Animation hToVAnim;
+		for (int i = 0; i < 11; i++)
+		{
+			Key hToVKey;
+			hToVKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(10 - i, 2)));
+			hToVAnim.AddKey(i, hToVKey);
+		}
+		hToVAnim.SetSamples(30);
+		hToVAnim.loop = false;
+		hToVAnimIndex = animator->AddAnimation(hToVAnim);
+
+		//FROM IDLE TO VTOH
+		Transition vToHIn(idleAnimIndex, vToHAnimIndex);
+		vToHIn.hasExitTime = false;
+		vToHIn.trigger = "vtoh";
+		animator->AddTransition(vToHIn);
+
+		//FROM VTOH TO IDLE2
+		Transition vToHOut(vToHAnimIndex, idle2AnimIndex);
+		vToHOut.hasExitTime = true;
+		vToHOut.trigger = "";
+		animator->AddTransition(vToHOut);
+
+		//FROM HORIZONTAL TO VERTICAL
+		Transition hToVIn(idle2AnimIndex, hToVAnimIndex);
+		hToVIn.hasExitTime = false;
+		hToVIn.trigger = "htov";
+		animator->AddTransition(hToVIn);
+
+		Transition hToVOut(hToVAnimIndex, idleAnimIndex);
+		hToVOut.hasExitTime = true;
+		hToVOut.trigger = "";
+		animator->AddTransition(hToVOut);
+
 		SDL_Log("Created Player");
 	}
 	void Awake()
@@ -157,11 +314,27 @@ public:
 	}
 	void Update()
 	{
-		//Vertical Stick assigned to Horizontal Movement
-		if (abs(Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V)) > 0.02f)
+		if (inTransition)
 		{
-			if (canMove)
+			if ((verticalMode && animator->GetCurrentAnimationID() == idle2AnimIndex)
+			||	(!verticalMode && animator->GetCurrentAnimationID() == idleAnimIndex))
 			{
+				verticalMode = !verticalMode;
+				inTransition = false;
+				EnableMovement();
+				EnableShooting();
+			}
+			else
+			{
+				if (verticalMode)
+					animator->SetTrigger("vtoh");
+				else
+					animator->SetTrigger("htov");
+			}
+		}
+		//Vertical Stick assigned to Horizontal Movement
+		if (abs(Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V)) > 0.02f && canMove)
+		{
 				float val = Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V);
 				if (val > 0)
 				{
@@ -174,7 +347,6 @@ public:
 					animator->SetTrigger("ileft");
 				}
 				transform.position.SetX(transform.position.GetX() + Time::deltaTime * speed.GetX() * val);
-			}
 		}
 		else
 		{
@@ -182,13 +354,54 @@ public:
 			animator->SetTrigger("oleft");
 		}
 		//Horizontal Stick assigned to Vertical Movement
-		if (abs(Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H)) > 0.02f)
+		if (abs(Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H)) > 0.02f && canMove)
 		{
-			if (canMove)
+			float val = Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H);
+			if (val > 0)
 			{
-				transform.position.SetY(transform.position.GetY() + Time::deltaTime * speed.GetY() * Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_H));
+				animator->SetTrigger("odown");
+				animator->SetTrigger("iup");
 			}
+			else if (val < 0)
+			{
+				animator->SetTrigger("oup");
+				animator->SetTrigger("idown");
+			}
+			transform.position.SetY(transform.position.GetY() + Time::deltaTime * speed.GetY() * val);
 		}
+		else
+		{
+			animator->SetTrigger("oup");
+			animator->SetTrigger("odown");
+		}
+		if (Input::GetKeyDown(Input::KeyCode::NX_Y))
+		{
+			ToggleMode();
+		}
+	}
+	void ToggleMode()
+	{
+		inTransition = true;
+		DisableMovement();
+		DisableShooting();
+	}
+	void DisableMovement()
+	{
+		canMove = false;
+	}
+	void EnableMovement()
+	{
+		if(!inTransition)
+			canMove = true;
+	}
+	void DisableShooting()
+	{
+		canShoot = false;
+	}
+	void EnableShooting()
+	{
+		if(inTransition)
+			canShoot = true;
 	}
 };
 class TestScene : public Scene
