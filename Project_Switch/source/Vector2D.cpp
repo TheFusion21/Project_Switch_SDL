@@ -1,5 +1,8 @@
 #include "Vector2D.h"
-
+float lerp(float a, float b, float t)
+{
+	return a + t * (b - a);
+}
 Vector2D::Vector2D() : m_x(0), m_y(0)
 {
 }
@@ -112,3 +115,10 @@ Vector2D Vector2D::Normalized()
 	}
 	return Vector2D();
 }
+
+Vector2D Vector2D::Lerp(Vector2D start, Vector2D end, float t)
+{
+	return Vector2D(lerp(start.GetX(), end.GetX(), t), lerp(start.GetY(), start.GetY(), t));
+}
+
+

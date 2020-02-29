@@ -259,6 +259,14 @@ public:
 		{
 			Key vToHKey;
 			vToHKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(i, 2)));
+			if (i == 10)
+			{
+				vToHKey.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.578125f, 0.15625f)));
+			}
+			else if (i == 0)
+			{
+				vToHKey.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.2734375f, 0.578125f)));
+			}
 			vToHAnim.AddKey(i, vToHKey);
 		}
 		vToHAnim.SetSamples(30);
@@ -272,6 +280,14 @@ public:
 		{
 			Key hToVKey;
 			hToVKey.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(10 - i, 2)));
+			if (i == 0)
+			{
+				hToVKey.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.578125f, 0.15625f)));
+			}
+			else if (i == 10)
+			{
+				hToVKey.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.2734375f, 0.578125f)));
+			}
 			hToVAnim.AddKey(i, hToVKey);
 		}
 		hToVAnim.SetSamples(30);

@@ -10,7 +10,11 @@ float remap(float value, float oldMin, float oldMax, float newMin, float newMax)
 {
 	return newMin + (value - oldMin) * (newMax - newMin) / (oldMax - oldMin);
 }
-
+float QuadEaseInOut(float t)
+{
+	return t < 0.5f ? 2.0f * t * t : -1.0f + (4.0f - 2.0f * t) * t;
+	//return t<.5 ? 2*t*t : -1+(4-2*t)*t
+}
 //ANIMATION
 Animation::Animation()
 {
@@ -114,33 +118,40 @@ void Animator::UpdateAnimations()
 	Animation curAnim = animations[curAnimIndex];
 
 	if (curAnim.keys.size() < 1)
+	{
 		return;
-	int frame = (int)std::round(time * curAnim.samples);
+	}
+	unsigned int frame = (int)std::round(time * curAnim.samples);
 	
 
 	unsigned int lastKey = 0;
-	int prevKey = INT_MIN;
-	int nextKey = INT_MAX;
+	int prevKey = 0;
+	int nextKey = 0;
 	for (std::map<unsigned int, Key>::iterator it = curAnim.keys.begin(); it != curAnim.keys.end(); ++it)
 	{
 		if (lastKey < (*it).first)
+		{
 			lastKey = (*it).first;
+		}
 		if ((*it).first == frame)
+		{
 			prevKey = nextKey = (*it).first;
+		}
 		else
 		{
-			if ((*it).first > frame && nextKey > (*it).first)
+			//TODO: FIX SEARCH
+			if ((*it).first > frame && nextKey < (*it).first)
 			{
 				nextKey = (*it).first;
 			}
-			if ((*it).first < frame && prevKey < (*it).first)
+			if ((*it).first < frame && prevKey > (*it).first)
 			{
 				prevKey = (*it).first;
 			}
 		}
 
 	}
-	if (curAnim.loop)
+	if (curAnim.loop && frame > lastKey)
 	{
 		frame = frame % lastKey;
 		time = 0;
@@ -157,7 +168,6 @@ void Animator::UpdateAnimations()
 		{
 			if (it->first != nullptr)
 			{
-				//it->first->Set(it->second.GetX(), it->second.GetY());
 				*it->first = it->second;
 			}
 		}
@@ -189,24 +199,52 @@ void Animator::UpdateAnimations()
 				*it->first = it->second;
 			}
 		}
-		/*if (key.sprite != nullptr)
+	}
+	else
+	{
+		Key left = curAnim.keys[prevKey];
+		Key right = curAnim.keys[nextKey];
+		float t = remap(frame, 0, lastKey, prevKey, nextKey);
+		SDL_Log("prev != next");
+		for (std::map<Vector2D*, Vector2D>::iterator it1 = left.vecs.begin(); it1 != left.vecs.end(); ++it1)
 		{
-			SpriteRenderer * renderer = (SpriteRenderer*)gameObject->GetComponent(SpriteRenderer::name);
-			if(renderer != nullptr)
-				renderer->sprite = key.sprite;
+			for (std::map<Vector2D*, Vector2D>::iterator it2 = right.vecs.begin(); it2 != right.vecs.end(); ++it2)
+			{
+				SDL_Log("searching");
+				if (it1->first == it2->first)
+				{
+					SDL_Log("interpolating");
+					if (t < 0.5f)
+					{
+						if (left.rightInterpolation == Key::INTERPOLATION_TYPE::LINEAR)
+						{
+							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, t);
+							*it1->first = lerpVec;
+						}
+						else if (left.rightInterpolation == Key::INTERPOLATION_TYPE::SMOOTH)
+						{
+							float st = QuadEaseInOut(t);
+							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, st);
+							*it1->first = lerpVec;
+						}
+					}
+					else
+					{
+						if (right.leftInterpolation == Key::INTERPOLATION_TYPE::LINEAR)
+						{
+							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, t);
+							*it1->first = lerpVec;
+						}
+						else if (right.leftInterpolation == Key::INTERPOLATION_TYPE::SMOOTH)
+						{
+							float st = QuadEaseInOut(t);
+							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, st);
+							*it1->first = lerpVec;
+						}
+					}
+				}
+			}
 		}
-		if (key.colliderSize != nullptr)
-		{
-			Collider2D * collider = (Collider2D*)gameObject->GetComponent(Collider2D::name);
-			if (collider != nullptr)
-				collider->size = *key.colliderSize;
-		}
-		if (key.colliderOffset != nullptr)
-		{
-			Collider2D * collider = (Collider2D*)gameObject->GetComponent(Collider2D::name);
-			if (collider != nullptr)
-				collider->offset = *key.colliderOffset;
-		}*/
 	}
 	time += Time::deltaTime;
 }

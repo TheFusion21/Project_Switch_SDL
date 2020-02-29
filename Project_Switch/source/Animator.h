@@ -6,11 +6,21 @@
 #include <vector>
 struct Key
 {
+	enum INTERPOLATION_TYPE
+	{
+		LINEAR,
+		CONSTANT,
+		SMOOTH
+	};
 	std::map<Vector2D*, Vector2D> vecs;
 	std::map<float*, float> floats;
 	std::map<int*, int> ints;
 	std::map<bool*, bool> bools;
 	std::map<Sprite**, Sprite*> sprites;
+
+	INTERPOLATION_TYPE leftInterpolation = SMOOTH;
+	INTERPOLATION_TYPE rightInterpolation = SMOOTH;
+
 };
 class Animation
 {

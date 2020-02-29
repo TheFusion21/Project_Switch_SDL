@@ -44,6 +44,8 @@ public:
 
 	Vector2D Normalized();
 
+	static Vector2D Lerp(Vector2D start, Vector2D end, float t);
+
 private:
 	float m_x;
 	float m_y;
