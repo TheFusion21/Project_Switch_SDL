@@ -56,11 +56,20 @@ private:
 	unsigned int curAnimIndex = 0;
 	float time;
 	float progress;
+	unsigned int firstKey, lastKey;
+	unsigned int frame;
 	std::map<const unsigned int, Animation> animations;
 	std::vector<Transition> transitions;
 	std::map<std::string, bool> triggers;
 	void UpdateTransitions();
-	void UpdateAnimations();
+	void UpdateAnimation();
+	void UpdateVectorInterpolation();
+	void UpdateFloatInterpolation();
+	void UpdateIntInterpolation();
+	void UpdateBoolInterpolation();
+	void UpdateSpriteInterpolation();
+
+	void UpdateInterpolations();
 public:
 	
 	static const std::string name;

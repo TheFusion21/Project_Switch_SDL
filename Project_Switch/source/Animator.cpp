@@ -112,44 +112,23 @@ void Animator::UpdateTransitions()
 	}
 	triggers.clear();
 }
-void Animator::UpdateAnimations()
+void Animator::UpdateAnimation()
 {
-	
 	Animation curAnim = animations[curAnimIndex];
-
-	if (curAnim.keys.size() < 1)
-	{
-		return;
-	}
-	unsigned int frame = (int)std::round(time * curAnim.samples);
+	frame = (int)std::round(time * curAnim.samples);
 	
-
-	unsigned int lastKey = 0;
-	int prevKey = 0;
-	int nextKey = 0;
+	lastKey = 0;
+	firstKey = UINT_MAX;
 	for (std::map<unsigned int, Key>::iterator it = curAnim.keys.begin(); it != curAnim.keys.end(); ++it)
 	{
 		if (lastKey < (*it).first)
 		{
 			lastKey = (*it).first;
 		}
-		if ((*it).first == frame)
+		if (firstKey > (*it).first)
 		{
-			prevKey = nextKey = (*it).first;
+			firstKey = (*it).first;
 		}
-		else
-		{
-			//TODO: FIX SEARCH
-			if ((*it).first > frame && nextKey < (*it).first)
-			{
-				nextKey = (*it).first;
-			}
-			if ((*it).first < frame && prevKey > (*it).first)
-			{
-				prevKey = (*it).first;
-			}
-		}
-
 	}
 	if (curAnim.loop && frame > lastKey)
 	{
@@ -161,6 +140,42 @@ void Animator::UpdateAnimations()
 		frame = frame > lastKey ? lastKey : frame;
 	}
 	progress = frame / (float)lastKey;
+}
+void Animator::UpdateVectorInterpolation()
+{
+	unsigned int prevKey ;
+	unsigned int nextKey = UINT_MAX;;
+}
+void Animator::UpdateFloatInterpolation()
+{
+
+}
+void Animator::UpdateIntInterpolation()
+{
+
+}
+void Animator::UpdateBoolInterpolation()
+{
+
+}
+void Animator::UpdateSpriteInterpolation()
+{
+
+}
+void Animator::UpdateInterpolations()
+{
+	Animation curAnim = animations[curAnimIndex];
+	if (frame < firstKey)
+	{
+		return;
+	}
+	UpdateVectorInterpolation();
+	UpdateFloatInterpolation();
+	UpdateIntInterpolation();
+	UpdateFloatInterpolation();
+	UpdateBoolInterpolation();
+	UpdateSpriteInterpolation();
+	/*
 	if (prevKey == nextKey)
 	{
 		Key key = curAnim.keys[prevKey];
@@ -246,14 +261,21 @@ void Animator::UpdateAnimations()
 			}
 		}
 	}
-	time += Time::deltaTime;
+	*/
 }
 void Animator::Update()
 {
 	if (animations.size() < 1)
 		return;
 	UpdateTransitions();
-	UpdateAnimations();
+	Animation curAnim = animations[curAnimIndex];
+	if (curAnim.keys.size() < 1)
+	{
+		return;
+	}
+	UpdateAnimation();
+	UpdateInterpolations();
+	time += Time::deltaTime;
 }
 
 void Animator::Render()
