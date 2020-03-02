@@ -47,6 +47,7 @@ void SceneManager::Run(Scene *initialScene)
 void SceneManager::push(Scene *scene)
 {
 	_scenes.push_back(scene);
+	_currentScene = scene;
 	_scenes.back()->Init();
 }
 

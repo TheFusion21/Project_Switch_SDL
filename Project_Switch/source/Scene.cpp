@@ -41,24 +41,4 @@ void Scene::Exit()
 	}
 }
 
-void Scene::Instantiate(Object* object)
-{
-	Instantiate(object, object->transform.position);
-}
 
-void Scene::Instantiate(Object* object, Vector2D position)
-{
-	Instantiate(object, position, object->transform.rotation);
-}
-
-void Scene::Instantiate(Object* object, Vector2D position, float rotation)
-{
-	object->transform.rotation = rotation;
-	object->transform.position.Set(position);
-	_objects.push_back(object);
-	if (object->IsEnabled())
-	{
-		_objects.back()->Awake();
-		_objects.back()->Start();
-	}
-}

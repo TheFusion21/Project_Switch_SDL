@@ -20,10 +20,9 @@ public:
 	{
 		return _stateName;
 	}
-	void Instantiate(Object* object);
-	void Instantiate(Object* object, Vector2D position);
-	void Instantiate(Object* object, Vector2D position, float rotation);
+	
 protected:
+	friend class Object;
 	std::string _stateName;
 	std::vector<Object *> _objects;
 };

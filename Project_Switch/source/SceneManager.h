@@ -18,6 +18,7 @@ public:
 
 	void Exit();
 private:
+	friend class Object;
 	std::vector<Scene*> _scenes;
 
 	SceneManager();

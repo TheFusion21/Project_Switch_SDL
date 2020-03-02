@@ -3,6 +3,7 @@
 #include "Transform.h"
 #include <string>
 #include <vector>
+class Scene;
 class Object
 {
 protected:
@@ -38,6 +39,10 @@ public:
 	inline int GetComponentCount() { return components.size(); }
 
 	Component* AddComponent(Component * component);
+
+	static void Instantiate(Object* object);
+	static void Instantiate(Object* object, Vector2D position);
+	static void Instantiate(Object* object, Vector2D position, float rotation);
 protected:
 	//This function is called when the object becomes enabled and active.
 	virtual void OnEnable();

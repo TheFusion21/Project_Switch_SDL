@@ -17,6 +17,8 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #include "SDL_Switch.h"
+
+
 class Player : public Object
 {
 private:
@@ -420,13 +422,14 @@ public:
 			canShoot = true;
 	}
 };
+
 class TestScene : public Scene
 {
 public:
 	bool Init()
 	{
 		_stateName = "TestScene";
-		Instantiate(new Player(), Vector2D(0, 0), 0);
+		Object::Instantiate(new Player(), Vector2D(0, 0), 0);
 		return true;
 	}
 };

@@ -2,6 +2,7 @@
 #include "Transform.h"
 #include "SpriteRenderer.h"
 #include "Rigidbody2D.h"
+#include "SceneManager.h"
 Object::Object(float x, float y) : enabled(true), layer(0), transform(this)
 {
 	transform.position.SetX(x);
@@ -92,4 +93,26 @@ Component* Object::AddComponent(Component* component)
 	}
 	components.push_back(component);
 	return components.back();
+}
+
+void Object::Instantiate(Object* object)
+{
+	Instantiate(object, object->transform.position);
+}
+
+void Object::Instantiate(Object* object, Vector2D position)
+{
+	Instantiate(object, position, object->transform.rotation);
+}
+
+void Object::Instantiate(Object* object, Vector2D position, float rotation)
+{
+	object->transform.rotation = rotation;
+	object->transform.position.Set(position);
+	SceneManager::instance()._currentScene->_objects.push_back(object);
+	if (object->IsEnabled())
+	{
+		SceneManager::instance()._currentScene->_objects.back()->Awake();
+		SceneManager::instance()._currentScene->_objects.back()->Start();
+	}
 }
