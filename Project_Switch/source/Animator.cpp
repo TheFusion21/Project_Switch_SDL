@@ -141,27 +141,6 @@ void Animator::UpdateAnimation()
 	}
 	progress = frame / (float)lastKey;
 }
-void Animator::UpdateVectorInterpolation()
-{
-	unsigned int prevKey ;
-	unsigned int nextKey = UINT_MAX;;
-}
-void Animator::UpdateFloatInterpolation()
-{
-
-}
-void Animator::UpdateIntInterpolation()
-{
-
-}
-void Animator::UpdateBoolInterpolation()
-{
-
-}
-void Animator::UpdateSpriteInterpolation()
-{
-
-}
 void Animator::UpdateInterpolations()
 {
 	Animation curAnim = animations[curAnimIndex];
@@ -169,99 +148,98 @@ void Animator::UpdateInterpolations()
 	{
 		return;
 	}
-	UpdateVectorInterpolation();
-	UpdateFloatInterpolation();
-	UpdateIntInterpolation();
-	UpdateFloatInterpolation();
-	UpdateBoolInterpolation();
-	UpdateSpriteInterpolation();
-	/*
-	if (prevKey == nextKey)
+
+	struct KeyPair
 	{
-		Key key = curAnim.keys[prevKey];
-		for (std::map<Vector2D*, Vector2D>::iterator it = key.vecs.begin(); it != key.vecs.end(); ++it)
-		{
-			if (it->first != nullptr)
-			{
-				*it->first = it->second;
-			}
-		}
-		for (std::map<float*, float>::iterator it = key.floats.begin(); it != key.floats.end(); ++it)
-		{
-			if (it->first != nullptr)
-			{
-				*it->first = it->second;
-			}
-		}
-		for (std::map<int*, int>::iterator it = key.ints.begin(); it != key.ints.end(); ++it)
-		{
-			if (it->first != nullptr)
-			{
-				*it->first = it->second;
-			}
-		}
-		for (std::map<bool*, bool>::iterator it = key.bools.begin(); it != key.bools.end(); ++it)
-		{
-			if (it->first != nullptr)
-			{
-				*it->first = it->second;
-			}
-		}
-		for (std::map<Sprite**, Sprite*>::iterator it = key.sprites.begin(); it != key.sprites.end(); ++it)
-		{
-			if (it->first != nullptr)
-			{
-				*it->first = it->second;
-			}
-		}
-	}
-	else
+		unsigned int prevKey = 0;
+		unsigned int nextKey = UINT_MAX;
+		bool prevKeySet = false;
+		bool nextKeySet = false;
+	};
+	std::map<Vector2D*, KeyPair> vecMarks;
+	std::map<float*, KeyPair> floatMarks;
+	std::map<int*, KeyPair> intMarks;
+	std::map<bool*, KeyPair> boolMarks;
+
+	for (std::map<unsigned int, Key>::iterator it = curAnim.keys.begin(); it != curAnim.keys.end(); ++it)
 	{
-		Key left = curAnim.keys[prevKey];
-		Key right = curAnim.keys[nextKey];
-		float t = remap(frame, 0, lastKey, prevKey, nextKey);
-		SDL_Log("prev != next");
-		for (std::map<Vector2D*, Vector2D>::iterator it1 = left.vecs.begin(); it1 != left.vecs.end(); ++it1)
+		if (it->second.vecs.size() > 0)
 		{
-			for (std::map<Vector2D*, Vector2D>::iterator it2 = right.vecs.begin(); it2 != right.vecs.end(); ++it2)
+			//DO MARKS FOR THIS KEY ON VECTORS
+			for (std::map<Vector2D*, Vector2D>::iterator v_it = it->second.vecs.begin(); v_it != it->second.vecs.end(); ++v_it)
 			{
-				SDL_Log("searching");
-				if (it1->first == it2->first)
+				
+				if (it->first == frame)
 				{
-					SDL_Log("interpolating");
-					if (t < 0.5f)
-					{
-						if (left.rightInterpolation == Key::INTERPOLATION_TYPE::LINEAR)
-						{
-							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, t);
-							*it1->first = lerpVec;
-						}
-						else if (left.rightInterpolation == Key::INTERPOLATION_TYPE::SMOOTH)
-						{
-							float st = QuadEaseInOut(t);
-							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, st);
-							*it1->first = lerpVec;
-						}
-					}
-					else
-					{
-						if (right.leftInterpolation == Key::INTERPOLATION_TYPE::LINEAR)
-						{
-							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, t);
-							*it1->first = lerpVec;
-						}
-						else if (right.leftInterpolation == Key::INTERPOLATION_TYPE::SMOOTH)
-						{
-							float st = QuadEaseInOut(t);
-							Vector2D lerpVec = Vector2D::Lerp(it1->second, it2->second, st);
-							*it1->first = lerpVec;
-						}
-					}
+					//SET VALUE AND BREAK
+					*v_it->first = v_it->second;
+					continue;
+				}
+				if (vecMarks.find(v_it->first) == vecMarks.end())
+				{
+					vecMarks.insert(std::pair<Vector2D*, KeyPair>(v_it->first, KeyPair()));
+				}
+				KeyPair& mark = vecMarks.at(v_it->first);
+				
+				if (it->first >= mark.prevKey && it->first < frame)
+				{
+					mark.prevKey = it->first;
+					mark.prevKeySet = true;
+				}
+				if (it->first <= mark.nextKey && it->first > frame)
+				{
+					mark.nextKey = it->first;
+					mark.nextKeySet = true;
+				}
+			}
+		}
+		//NO NEED FOR MARKS WITH SPRITES AS THERE ARE NOT INTERPOLATED
+		if (it->second.sprites.size() > 0)
+		{
+			for (std::map<Sprite**, Sprite*>::iterator s_it = it->second.sprites.begin(); s_it != it->second.sprites.end(); ++s_it)
+			{
+				if (it->first == frame)
+				{
+					*s_it->first = s_it->second;
 				}
 			}
 		}
 	}
-	*/
+	for (std::map<Vector2D*, KeyPair>::iterator it = vecMarks.begin(); it != vecMarks.end(); ++it)
+	{
+		if (it->second.prevKeySet && it->second.nextKeySet)
+		{
+			Key left = curAnim.keys[it->second.prevKey];
+			Key right = curAnim.keys[it->second.nextKey];
+			float t = remap(frame, it->second.prevKey, it->second.nextKey, 0, 1);
+			Vector2D lerpVec;
+			if (t < 0.5f)
+			{
+				if (left.rightInterpolation == Key::INTERPOLATION_TYPE::LINEAR)
+				{
+					lerpVec = Vector2D::Lerp(left.vecs.at(it->first), right.vecs.at(it->first), t);
+				}
+				else if (left.rightInterpolation == Key::INTERPOLATION_TYPE::SMOOTH)
+				{
+					float st = QuadEaseInOut(t);
+					lerpVec = Vector2D::Lerp(left.vecs.at(it->first), right.vecs.at(it->first), st);
+				}
+			}
+			else
+			{
+				if (right.leftInterpolation == Key::INTERPOLATION_TYPE::LINEAR)
+				{
+					lerpVec = Vector2D::Lerp(left.vecs.at(it->first), right.vecs.at(it->first), t);
+				}
+				else if (right.leftInterpolation == Key::INTERPOLATION_TYPE::SMOOTH)
+				{
+					float st = QuadEaseInOut(t);
+					lerpVec = Vector2D::Lerp(left.vecs.at(it->first), right.vecs.at(it->first), st);
+				}
+			}
+			*it->first = lerpVec;
+		}
+	}
 }
 void Animator::Update()
 {

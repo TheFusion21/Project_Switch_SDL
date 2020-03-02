@@ -118,7 +118,7 @@ Vector2D Vector2D::Normalized()
 
 Vector2D Vector2D::Lerp(Vector2D start, Vector2D end, float t)
 {
-	return Vector2D(lerp(start.GetX(), end.GetX(), t), lerp(start.GetY(), start.GetY(), t));
+	return Vector2D(lerp(start.GetX(), end.GetX(), t), lerp(start.GetY(), end.GetY(), t));
 }
 
 

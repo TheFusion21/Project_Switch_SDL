@@ -63,13 +63,8 @@ private:
 	std::map<std::string, bool> triggers;
 	void UpdateTransitions();
 	void UpdateAnimation();
-	void UpdateVectorInterpolation();
-	void UpdateFloatInterpolation();
-	void UpdateIntInterpolation();
-	void UpdateBoolInterpolation();
-	void UpdateSpriteInterpolation();
-
 	void UpdateInterpolations();
+
 public:
 	
 	static const std::string name;
