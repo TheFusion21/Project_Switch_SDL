@@ -5,7 +5,8 @@
 #include "Collider2D.h"
 void Scene::Update()
 {
-	for (std::vector<Object*>::iterator it = _objects.begin(); it != _objects.end(); ++it)
+	std::vector<Object*> buffer = _objects;
+	for (std::vector<Object*>::iterator  it = buffer.begin(); it != buffer.end(); ++it)
 	{
 		(*it)->Update();
 		int CompCount = (*it)->GetComponentCount();
@@ -21,7 +22,7 @@ void Scene::Render()
 	std::sort(_objects.begin(), _objects.end(),
 	[](const Object* a, const Object* b) -> bool
 	{
-			return a->layer > b->layer;
+			return a->layer < b->layer;
 	});
 
 	for (std::vector<Object*>::iterator it = _objects.begin(); it != _objects.end(); ++it)

@@ -6,7 +6,7 @@
 class Scene;
 class Object
 {
-protected:
+private:
 	//Indicates wether the object is enabled or not. Use Disable and Enable to change this state
 	bool enabled = true;
 	std::vector<Component*> components;
@@ -16,7 +16,7 @@ public:
 	Transform transform;
 	Object(float x, float y);
 	~Object();
-	
+
 	//Awake is called when the script instance is being loaded.
 	virtual void Awake() = 0;
 	//Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
@@ -40,9 +40,9 @@ public:
 
 	Component* AddComponent(Component * component);
 
-	static void Instantiate(Object* object);
-	static void Instantiate(Object* object, Vector2D position);
-	static void Instantiate(Object* object, Vector2D position, float rotation);
+	static Object * Instantiate(Object* object);
+	static Object * Instantiate(Object* object, Vector2D position);
+	static Object * Instantiate(Object* object, Vector2D position, float rotation);
 protected:
 	//This function is called when the object becomes enabled and active.
 	virtual void OnEnable();

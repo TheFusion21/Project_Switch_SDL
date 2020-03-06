@@ -18,6 +18,115 @@ typedef SSIZE_T ssize_t;
 
 #include "SDL_Switch.h"
 
+class BaseBullet : public Object
+{
+public:
+	BaseBullet() : Object(0, 0)
+	{
+		
+	}
+	void Awake()
+	{
+
+	}
+	void Start()
+	{ 
+		
+	}
+	void Update()
+	{
+
+	}
+};
+class DefaultBullet : public BaseBullet
+{
+public:
+	DefaultBullet() : BaseBullet()
+	{
+		SpriteRenderer * renderer = (SpriteRenderer*)GetComponent(SpriteRenderer::name);
+		renderer->sprite = Sprite::SpriteFromFile("romfs:/DefaultBullet.png");
+	}
+};
+class BaseGun : public Object
+{
+protected:
+	int curBarrelIndex = 0;
+public:
+	enum FIREMODE
+	{
+		ALTERNATING,
+		SIMULTANEOUSLY,
+	};
+	std::vector<Vector2D> BarrelPositions;
+	float fireRate = 5;
+	FIREMODE fireMode = ALTERNATING;
+	float coolDown = 0;
+	BaseBullet * bullet;
+	BaseGun() : Object(0, 0)
+	{
+
+	}
+	void Awake()
+	{
+
+	}
+	void Start()
+	{
+
+	}
+	void Update()
+	{
+		if (BarrelPositions.size() == 0 || coolDown == 0)
+			return;
+		if (coolDown > 0)
+		{
+			if (fireMode == ALTERNATING)
+			{
+				coolDown -= Time::deltaTime * fireRate;
+			}
+			else if (fireMode == SIMULTANEOUSLY)
+			{
+				coolDown -= Time::deltaTime / BarrelPositions.size() * fireRate;
+			}
+		}
+		if (coolDown < 0)
+		{
+			coolDown = 0;
+		}
+	}
+	virtual void Shoot(Vector2D direction)
+	{
+		
+		if (BarrelPositions.size() < 1 || coolDown > 0)
+			return;
+		double PI = 3.141592653589793;
+		float rotation = 90 - atan2(direction.GetX(), direction.GetY()) * 180 / PI;
+		if (fireMode == ALTERNATING)
+		{
+			Object::Instantiate(bullet, BarrelPositions[curBarrelIndex], rotation);
+			
+			curBarrelIndex++;
+			if (curBarrelIndex >= BarrelPositions.size())
+				curBarrelIndex = 0;
+		}
+		else if (fireMode == SIMULTANEOUSLY)
+		{
+
+		}
+		coolDown = 1;
+	}
+	
+};
+
+
+class DefaultGun : public BaseGun
+{
+public:
+	DefaultGun() : BaseGun()
+	{
+		bullet = new DefaultBullet();
+	}
+};
 
 class Player : public Object
 {
@@ -33,9 +142,14 @@ private:
 	bool inTransition = false;
 	bool canShoot = true;
 	bool canMove = true;
+	BaseGun * currentGun;
+	Vector2D barrel1Position;
+	Vector2D barrel1Local;
+	Vector2D barrel2Position;
+	Vector2D barrel2Local;
 public:
 	
-	Player() : Object(0, 0), speed(4, 4)
+	Player() : Object(0, 0), speed(4, 4), barrel1Local(-.1f, 0), barrel2Local(.1f, 0)
 	{
 		
 		//COLLIDER SETUP
@@ -319,6 +433,7 @@ public:
 		hToVOut.trigger = "";
 		animator->AddTransition(hToVOut);
 
+		layer = 999;
 		SDL_Log("Created Player");
 	}
 	void Awake()
@@ -327,15 +442,25 @@ public:
 	}
 	void Start()
 	{
+		SetWeapon(Object::Instantiate(new DefaultGun()));
 		if (!verticalMode)
 			animator->OverrideCurrentAnimation(idle2AnimIndex);
 	}
 	void Update()
 	{
+		UpdateMovement();
+		UpdateGun();
+		if (Input::GetKeyDown(Input::KeyCode::NX_Y))
+		{
+			ToggleMode();
+		}
+	}
+	void UpdateMovement()
+	{
 		if (inTransition)
 		{
 			if ((verticalMode && animator->GetCurrentAnimationID() == idle2AnimIndex)
-			||	(!verticalMode && animator->GetCurrentAnimationID() == idleAnimIndex))
+				|| (!verticalMode && animator->GetCurrentAnimationID() == idleAnimIndex))
 			{
 				verticalMode = !verticalMode;
 				inTransition = false;
@@ -353,18 +478,18 @@ public:
 		//Vertical Stick assigned to Horizontal Movement
 		if (abs(Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V)) > 0.02f && canMove)
 		{
-				float val = Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V);
-				if (val > 0)
-				{
-					animator->SetTrigger("oleft");
-					animator->SetTrigger("iright");
-				}
-				else if (val < 0)
-				{
-					animator->SetTrigger("oright");
-					animator->SetTrigger("ileft");
-				}
-				transform.position.SetX(transform.position.GetX() + Time::deltaTime * speed.GetX() * val);
+			float val = Input::GetAxisRaw(Input::AxisCode::AXIS_RSTICK_V);
+			if (val > 0)
+			{
+				animator->SetTrigger("oleft");
+				animator->SetTrigger("iright");
+			}
+			else if (val < 0)
+			{
+				animator->SetTrigger("oright");
+				animator->SetTrigger("ileft");
+			}
+			transform.position.SetX(transform.position.GetX() + Time::deltaTime * speed.GetX() * val);
 		}
 		else
 		{
@@ -392,9 +517,24 @@ public:
 			animator->SetTrigger("oup");
 			animator->SetTrigger("odown");
 		}
-		if (Input::GetKeyDown(Input::KeyCode::NX_Y))
+	}
+	
+	void UpdateGun()
+	{
+		Vector2D direction = Vector2D(1, 0);
+		if (verticalMode)
 		{
-			ToggleMode();
+			direction = Vector2D(0, 1);
+		}
+		if (Input::GetKey(Input::KeyCode::NX_X))
+		{
+			barrel1Position.Set(barrel1Local + transform.position);
+			barrel2Position.Set(barrel2Local + transform.position);
+			currentGun->BarrelPositions.clear();
+			currentGun->BarrelPositions.push_back(barrel1Position);
+			currentGun->BarrelPositions.push_back(barrel2Position);
+			currentGun->Shoot(direction);
+
 		}
 	}
 	void ToggleMode()
@@ -421,6 +561,13 @@ public:
 		if(inTransition)
 			canShoot = true;
 	}
+	void SetWeapon(Object * newGun)
+	{
+		currentGun = (BaseGun*)newGun;
+		currentGun->BarrelPositions.push_back(barrel1Position);
+		currentGun->BarrelPositions.push_back(barrel2Position);
+		SDL_Log("Set weapon");
+	}
 };
 
 class TestScene : public Scene
@@ -430,6 +577,7 @@ public:
 	{
 		_stateName = "TestScene";
 		Object::Instantiate(new Player(), Vector2D(0, 0), 0);
+		
 		return true;
 	}
 };

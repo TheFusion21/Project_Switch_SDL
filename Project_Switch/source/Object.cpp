@@ -95,24 +95,29 @@ Component* Object::AddComponent(Component* component)
 	return components.back();
 }
 
-void Object::Instantiate(Object* object)
+
+Object * Object::Instantiate(Object* object)
 {
-	Instantiate(object, object->transform.position);
+	return Instantiate(object, object->transform.position);
 }
 
-void Object::Instantiate(Object* object, Vector2D position)
+Object * Object::Instantiate(Object* object, Vector2D position)
 {
-	Instantiate(object, position, object->transform.rotation);
+	return Instantiate(object, position, object->transform.rotation);
 }
 
-void Object::Instantiate(Object* object, Vector2D position, float rotation)
+Object * Object::Instantiate(Object* object, Vector2D position, float rotation)
 {
+	SDL_Log("Instantiating Object");
 	object->transform.rotation = rotation;
+	SDL_Log("Rotation now is %f", object->transform.rotation);
 	object->transform.position.Set(position);
+	SDL_Log("Position now is %f, %f", object->transform.position.GetX(), object->transform.position.GetY());
 	SceneManager::instance()._currentScene->_objects.push_back(object);
-	if (object->IsEnabled())
+	if (SceneManager::instance()._currentScene->_objects.back()->IsEnabled())
 	{
 		SceneManager::instance()._currentScene->_objects.back()->Awake();
 		SceneManager::instance()._currentScene->_objects.back()->Start();
 	}
+	return SceneManager::instance()._currentScene->_objects.back();
 }

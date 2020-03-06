@@ -12,13 +12,13 @@ struct Sprite
 	SDL_Rect src_rect;
 	SDL_Texture * src_Texture;
 	
-	static Sprite SpriteFromFile(std::string filename)
+	static Sprite * SpriteFromFile(std::string filename)
 	{
-		Sprite sprite;
-		sprite.src_Texture = TextureManager::instance().GetTexture(filename);
+		Sprite * sprite = new Sprite();
+		sprite->src_Texture = TextureManager::instance().GetTexture(filename);
 		int w, h;
-		SDL_QueryTexture(sprite.src_Texture, NULL, NULL, &w, &h);
-		sprite.src_rect = { 0, 0, w, h };
+		SDL_QueryTexture(sprite->src_Texture, NULL, NULL, &w, &h);
+		sprite->src_rect = { 0, 0, w, h };
 		return sprite;
 	}
 };
