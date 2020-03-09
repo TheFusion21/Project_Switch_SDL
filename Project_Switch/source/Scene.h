@@ -5,22 +5,23 @@
 #include "Object.h"
 class Scene
 {
+private:
+	float timePast = 0;
 public:
 	virtual bool Init() = 0;
 
-	virtual void Update();
+	void Update();
 
-	virtual void Render();
+	void Render();
 
-	virtual void Exit();
+	void Exit();
 
-	virtual ~Scene()
-	{}
+	~Scene(){}
 	std::string GetStateName()
 	{
 		return _stateName;
 	}
-	
+	inline int GetObjectCount() { return _objects.size(); }
 protected:
 	friend class Object;
 	std::string _stateName;

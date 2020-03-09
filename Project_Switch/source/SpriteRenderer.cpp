@@ -18,7 +18,7 @@ void SpriteRenderer::Render()
 	if (sprite == nullptr)return;
 	if (!enabled || sprite->src_Texture == nullptr)return;
 	//SDL_RenderCopy(Globals::renderer, tex, &srcRect, &dstRect);
-	Vector2D worldPos = GameManager::instance().camera.WorldToScreenPoint(gameObject->transform.position);
+	Vector2D worldPos = GameManager::instance().camera.WorldToScreenPoint(gameObject->transform.GetGlobalPosition());
 	SDL_Rect dst_rect =
 	{
 		worldPos.GetX() - sprite->src_rect.w * gameObject->transform.anchor.GetX() * gameObject->transform.scale.GetX(),
@@ -28,5 +28,5 @@ void SpriteRenderer::Render()
 	};
 	SDL_Point center = {sprite->src_rect.w*gameObject->transform.anchor.GetX(), sprite->src_rect.h*gameObject->transform.anchor.GetY() };
 	SDL_RendererFlip flip = (SDL_RendererFlip)((flipX ? SDL_RendererFlip::SDL_FLIP_VERTICAL : SDL_RendererFlip::SDL_FLIP_NONE) | (flipY ? SDL_RendererFlip::SDL_FLIP_HORIZONTAL : SDL_RendererFlip::SDL_FLIP_NONE));
-	SDL_RenderCopyEx(g_renderer, sprite->src_Texture, &sprite->src_rect, &dst_rect, gameObject->transform.rotation, &center, flip);
+	SDL_RenderCopyEx(g_renderer, sprite->src_Texture, &sprite->src_rect, &dst_rect, gameObject->transform.localRotation, &center, flip);
 }

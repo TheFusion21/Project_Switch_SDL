@@ -15,7 +15,7 @@ void BoxCollider2D::Render()
 	if (Debug::showCollider)
 	{
 		SDL_Renderer * g_renderer = GameManager::instance().GetRenderer();
-		Vector2D worldPos = GameManager::instance().camera.WorldToScreenPoint(gameObject->transform.position + offset);
+		Vector2D worldPos = GameManager::instance().camera.WorldToScreenPoint(gameObject->transform.localPosition + offset);
 		SDL_Rect dst_rect =
 		{
 			worldPos.GetX() - size.GetX() * GameManager::instance().camera.pixelPerUnit * gameObject->transform.anchor.GetX() * gameObject->transform.scale.GetX(),

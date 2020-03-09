@@ -22,6 +22,7 @@ void SceneManager::Run(Scene *initialScene)
 	instance().push(initialScene);
 	if (_fsm_status)
 	{
+		SDL_Log("Starting with object count of %d", _currentScene->GetObjectCount());
 		for (;;)
 		{
 			if (!_fsm_status)
@@ -47,7 +48,7 @@ void SceneManager::Run(Scene *initialScene)
 void SceneManager::push(Scene *scene)
 {
 	_scenes.push_back(scene);
-	_currentScene = scene;
+	_currentScene = _scenes.back();
 	_scenes.back()->Init();
 }
 
@@ -67,6 +68,7 @@ void SceneManager::change(Scene *scene)
 		}
 	}
 	_scenes.push_back(scene);
+	_currentScene = _scenes.back();
 	_scenes.back()->Init();
 }
 
@@ -77,6 +79,7 @@ void SceneManager::Pop()
 		_scenes.back()->Exit();
 		delete _scenes.back();
 		_scenes.pop_back();
+		_currentScene = _scenes.back();
 	}
 }
 

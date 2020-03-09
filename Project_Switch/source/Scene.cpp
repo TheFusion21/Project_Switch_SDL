@@ -3,17 +3,21 @@
 #include "SDL2/SDL.h"
 #include "Renderer.h"
 #include "Collider2D.h"
+#include "Time.h"
 void Scene::Update()
 {
 	std::vector<Object*> buffer = _objects;
 	for (std::vector<Object*>::iterator  it = buffer.begin(); it != buffer.end(); ++it)
 	{
 		(*it)->Update();
-		int CompCount = (*it)->GetComponentCount();
-		for (int i = 0; i < CompCount; i++)
+	}
+	if (timePast > Time::fixedTimeStep)
+	{
+		for (std::vector<Object*>::iterator it = buffer.begin(); it != buffer.end(); ++it)
 		{
-			(*it)->GetComponent(i)->Update();
+			(*it)->FixedUpdate();
 		}
+		timePast -= Time::fixedTimeStep;
 	}
 }
 void Scene::Render()
@@ -27,11 +31,7 @@ void Scene::Render()
 
 	for (std::vector<Object*>::iterator it = _objects.begin(); it != _objects.end(); ++it)
 	{
-		int CompCount = (*it)->GetComponentCount();
-		for (int i = 0; i < CompCount; i++)
-		{
-			(*it)->GetComponent(i)->Render();
-		}
+		(*it)->Render();
 	}
 }
 void Scene::Exit()

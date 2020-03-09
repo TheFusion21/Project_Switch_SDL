@@ -17,6 +17,7 @@ public:
 	static const float &frameCount;
 
 	static float timeScale;
+	static float fixedTimeStep;
 	
 	static void Init();
 

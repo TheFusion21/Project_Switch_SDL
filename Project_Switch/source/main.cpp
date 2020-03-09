@@ -17,7 +17,7 @@ typedef SSIZE_T ssize_t;
 #endif
 
 #include "SDL_Switch.h"
-
+/*
 class BaseBullet : public Object
 {
 public:
@@ -126,9 +126,47 @@ public:
 	{
 		bullet = new DefaultBullet();
 	}
-};
+};*/
+class BaseBullet : public Component
+{
+public:
+	static const std::string name;
+	BaseBullet(Object * _gameObject) : Component(_gameObject)
+	{
 
-class Player : public Object
+	}
+	std::string GetName()
+	{
+		return name;
+	}
+};
+const std::string BaseBullet::name = "BaseBullet";
+class BaseGun : public Component
+{
+public:
+	BaseBullet * bullet;
+
+	static const std::string name;
+	BaseGun(Object * _gameObject) : Component(_gameObject)
+	{
+
+	}
+	std::string GetName()
+	{
+		return name;
+	}
+};
+const std::string BaseGun::name = "BaseGun";
+class SingleFireGun : public BaseGun
+{
+public:
+
+	SingleFireGun(Object * _gameObject) : BaseGun(_gameObject)
+	{
+
+	}
+};
+class PlayerController : public Component
 {
 private:
 	int spriteSize = 74;
@@ -140,34 +178,29 @@ private:
 	unsigned int vToHAnimIndex, hToVAnimIndex;
 	bool verticalMode = false;
 	bool inTransition = false;
-	bool canShoot = true;
 	bool canMove = true;
-	BaseGun * currentGun;
-	Vector2D barrel1Position;
-	Vector2D barrel1Local;
-	Vector2D barrel2Position;
-	Vector2D barrel2Local;
+	bool canShoot = true;
 public:
-	
-	Player() : Object(0, 0), speed(4, 4), barrel1Local(-.1f, 0), barrel2Local(.1f, 0)
+	static const std::string name;
+	PlayerController(Object * _gameObject) : Component(_gameObject)
 	{
-		
+		speed.Set(4, 4);
 		//COLLIDER SETUP
-		BoxCollider2D * collider2D = (BoxCollider2D*)AddComponent(new BoxCollider2D(this));
+		BoxCollider2D * collider2D = (BoxCollider2D*)gameObject->AddComponent(new BoxCollider2D(gameObject));
 		collider2D->size.Set(0.2734375f, 0.578125f);
 		collider2D->edgeRadius = 0.09375f;
 
 		//ANIMATION TREE
-		SpriteRenderer * renderer = (SpriteRenderer*)GetComponent(SpriteRenderer::name);
-		animator = (Animator*)AddComponent(new Animator(this));
+		SpriteRenderer * renderer = (SpriteRenderer*)gameObject->AddComponent(new SpriteRenderer(gameObject));
+		animator = (Animator*)gameObject->AddComponent(new Animator(gameObject));
 		sheet = SpriteSheet::FromTileSize("romfs:/Player.png", spriteSize, spriteSize);
-		
+
 		//VERTICAL 
 
 		//IDLE ANIMATION
 		Animation idleAnim;
 		Key idleKey1;
-		idleKey1.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite,sheet.GetSpriteAt(0, 0)));
+		idleKey1.sprites.insert(std::pair<Sprite**, Sprite*>(&renderer->sprite, sheet.GetSpriteAt(0, 0)));
 		idleKey1.vecs.insert(std::pair<Vector2D*, Vector2D>(&collider2D->size, Vector2D(0.2734375f, 0.578125f)));
 		idleAnim.AddKey(0, idleKey1);
 		Key idleKey2;
@@ -433,29 +466,14 @@ public:
 		hToVOut.trigger = "";
 		animator->AddTransition(hToVOut);
 
-		layer = 999;
-		SDL_Log("Created Player");
-	}
-	void Awake()
-	{
-
+		SDL_Log("Created Player Controller");
 	}
 	void Start()
 	{
-		SetWeapon(Object::Instantiate(new DefaultGun()));
 		if (!verticalMode)
 			animator->OverrideCurrentAnimation(idle2AnimIndex);
 	}
 	void Update()
-	{
-		UpdateMovement();
-		UpdateGun();
-		if (Input::GetKeyDown(Input::KeyCode::NX_Y))
-		{
-			ToggleMode();
-		}
-	}
-	void UpdateMovement()
 	{
 		if (inTransition)
 		{
@@ -465,7 +483,7 @@ public:
 				verticalMode = !verticalMode;
 				inTransition = false;
 				EnableMovement();
-				EnableShooting();
+				//EnableShooting();
 			}
 			else
 			{
@@ -489,7 +507,7 @@ public:
 				animator->SetTrigger("oright");
 				animator->SetTrigger("ileft");
 			}
-			transform.position.SetX(transform.position.GetX() + Time::deltaTime * speed.GetX() * val);
+			gameObject->transform.localPosition.SetX(gameObject->transform.localPosition.GetX() + Time::deltaTime * speed.GetX() * val);
 		}
 		else
 		{
@@ -510,38 +528,23 @@ public:
 				animator->SetTrigger("oup");
 				animator->SetTrigger("idown");
 			}
-			transform.position.SetY(transform.position.GetY() + Time::deltaTime * speed.GetY() * val);
+			gameObject->transform.localPosition.SetY(gameObject->transform.localPosition.GetY() + Time::deltaTime * speed.GetY() * val);
 		}
 		else
 		{
 			animator->SetTrigger("oup");
 			animator->SetTrigger("odown");
 		}
-	}
-	
-	void UpdateGun()
-	{
-		Vector2D direction = Vector2D(1, 0);
-		if (verticalMode)
+		if (Input::GetKeyDown(Input::KeyCode::NX_Y))
 		{
-			direction = Vector2D(0, 1);
-		}
-		if (Input::GetKey(Input::KeyCode::NX_X))
-		{
-			barrel1Position.Set(barrel1Local + transform.position);
-			barrel2Position.Set(barrel2Local + transform.position);
-			currentGun->BarrelPositions.clear();
-			currentGun->BarrelPositions.push_back(barrel1Position);
-			currentGun->BarrelPositions.push_back(barrel2Position);
-			currentGun->Shoot(direction);
-
+			ToggleMode();
 		}
 	}
 	void ToggleMode()
 	{
 		inTransition = true;
 		DisableMovement();
-		DisableShooting();
+		//DisableShooting();
 	}
 	void DisableMovement()
 	{
@@ -549,7 +552,7 @@ public:
 	}
 	void EnableMovement()
 	{
-		if(!inTransition)
+		if (!inTransition)
 			canMove = true;
 	}
 	void DisableShooting()
@@ -558,17 +561,14 @@ public:
 	}
 	void EnableShooting()
 	{
-		if(inTransition)
-			canShoot = true;
+		canShoot = true;
 	}
-	void SetWeapon(Object * newGun)
+	std::string GetName()
 	{
-		currentGun = (BaseGun*)newGun;
-		currentGun->BarrelPositions.push_back(barrel1Position);
-		currentGun->BarrelPositions.push_back(barrel2Position);
-		SDL_Log("Set weapon");
+		return name;
 	}
 };
+const std::string PlayerController::name = "PlayerController";
 
 class TestScene : public Scene
 {
@@ -576,8 +576,11 @@ public:
 	bool Init()
 	{
 		_stateName = "TestScene";
-		Object::Instantiate(new Player(), Vector2D(0, 0), 0);
-		
+		Object * player = Object::Instantiate(new Object(), Vector2D(0, 0), 0);
+		player->AddComponent(new PlayerController(player));
+		Object * playerGun = Object::Instantiate(new Object(), Vector2D(0, 0), 0);
+		//playerGun->transform.parent = player;
+		//playerGun->AddComponent(new SingleFireGun(playerGun));
 		return true;
 	}
 };

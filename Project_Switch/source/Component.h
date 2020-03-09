@@ -6,27 +6,33 @@
 class Object;
 class Component
 {
+private:
+	friend class Object;
+	Component(){}
 protected:
 	Object* gameObject;
 	//Indicates wether the object is enabled or not. Use Disable and Enable to change this state
 	bool enabled = true;
 
 	Component(Object * _gameObject);
-public:
-	
-	
+	//Awake is called when the script instance is being loaded.
+	virtual void Awake();
+	//Start is called on the frame when a script is enabled just before any of the Update methods are called the first time.
+	virtual void Start();
 	//Render is called every frame, if the object is enabled.
-	virtual void Render() = 0;
+	virtual void Render();
 	//Update is called every frame, if the object is enabled.
 	virtual void Update();
+
+	virtual void FixedUpdate();
 	//This function is called when the object becomes enabled and active.
 	virtual void OnEnable();
 	//This function is called when the object becomes disabled.
 	virtual void OnDisable();
 	//This function is called to enable the component
-	virtual void Enable();
+	void Enable();
 	//This function is called to disable the component
-	virtual void Disable();
+	void Disable();
 
 	virtual std::string GetName() = 0;
 

@@ -4,6 +4,7 @@ Uint64 Time::NOW;
 Uint64 Time::LAST;
 
 float Time::timeScale = 1;
+float Time::fixedTimeStep = 0.02;
 
 float Time::_deltaTime = 0;
 float Time::_unscaledDeltaTime = 0;

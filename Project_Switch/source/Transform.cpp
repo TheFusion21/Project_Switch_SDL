@@ -1,15 +1,19 @@
 #include "Transform.h"
-
+#include "Object.h"
 const std::string Transform::name = "Transform";
-Transform::Transform(Object* _gameObject) : Component(_gameObject), scale(1, 1), anchor(.5f, .5f), position(0, 0)
+Transform::Transform(Object* _gameObject) : Component(_gameObject), scale(1, 1), anchor(.5f, .5f), localPosition(0, 0), parent(nullptr)
 {
 
 }
-
-void Transform::Update()
+Vector2D Transform::GetGlobalPosition()
 {
-}
-
-void Transform::Render()
-{
+	Vector2D pos;
+	pos.Set(localPosition);
+	Object * curParent = parent;
+	while (curParent != nullptr)
+	{
+		pos += curParent->transform.localPosition;
+		curParent = curParent->transform.parent;
+	}
+	return pos;
 }

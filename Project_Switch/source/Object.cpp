@@ -3,12 +3,16 @@
 #include "SpriteRenderer.h"
 #include "Rigidbody2D.h"
 #include "SceneManager.h"
+Object::Object() : Object(0, 0)
+{
+
+}
 Object::Object(float x, float y) : enabled(true), layer(0), transform(this)
 {
-	transform.position.SetX(x);
-	transform.position.SetY(y);
+	transform.localPosition.SetX(x);
+	transform.localPosition.SetY(y);
 	components.push_back(&transform);
-	components.push_back(new SpriteRenderer(this));
+	//components.push_back(new SpriteRenderer(this));
 }
 
 Object::~Object()
@@ -22,45 +26,39 @@ Object::~Object()
 
 void Object::Awake()
 {
-
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
+	{
+		(*it)->Awake();
+	}
 }
 void Object::Start()
 {
-	
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
+	{
+		(*it)->Start();
+	}
 }
 void Object::Update()
 {
-
-}
-void Object::Reset()
-{
-
-}
-void Object::OnEnable()
-{
-
-}
-void Object::OnDisable()
-{
-
-}
-
-void Object::Enable()
-{
-	if (!enabled)
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
 	{
-		enabled = true;
-		OnEnable();
-		Start();
+		(*it)->Update();
 	}
 }
 
-void Object::Disable()
+void Object::FixedUpdate()
 {
-	if (enabled)
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
 	{
-		enabled = false;
-		OnDisable();
+		(*it)->FixedUpdate();
+	}
+}
+
+void Object::Render()
+{
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
+	{
+		(*it)->Render();
 	}
 }
 
@@ -98,21 +96,21 @@ Component* Object::AddComponent(Component* component)
 
 Object * Object::Instantiate(Object* object)
 {
-	return Instantiate(object, object->transform.position);
+	return Instantiate(object, object->transform.localPosition, object->transform.localRotation);
 }
 
 Object * Object::Instantiate(Object* object, Vector2D position)
 {
-	return Instantiate(object, position, object->transform.rotation);
+	return Instantiate(object, position, object->transform.localRotation);
 }
 
 Object * Object::Instantiate(Object* object, Vector2D position, float rotation)
 {
 	SDL_Log("Instantiating Object");
-	object->transform.rotation = rotation;
-	SDL_Log("Rotation now is %f", object->transform.rotation);
-	object->transform.position.Set(position);
-	SDL_Log("Position now is %f, %f", object->transform.position.GetX(), object->transform.position.GetY());
+	object->transform.localRotation = rotation;
+	SDL_Log("Rotation now is %f", object->transform.localRotation);
+	object->transform.localPosition.Set(position);
+	SDL_Log("Position now is %f, %f", object->transform.localPosition.GetX(), object->transform.localPosition.GetY());
 	SceneManager::instance()._currentScene->_objects.push_back(object);
 	if (SceneManager::instance()._currentScene->_objects.back()->IsEnabled())
 	{
