@@ -4,7 +4,7 @@
 class Transform : public Component
 {
 public:
-	Object * parent;
+	Transform * parent;
 	static const std::string name;
 	Vector2D localPosition;
 	Vector2D scale;

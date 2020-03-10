@@ -5,6 +5,7 @@
 class SceneManager
 {
 public:
+	Scene *_currentScene = nullptr;
 	static SceneManager &instance();
 
 
@@ -18,14 +19,13 @@ public:
 
 	void Exit();
 private:
-	friend class Object;
 	std::vector<Scene*> _scenes;
 
 	SceneManager();
 
 	~SceneManager();
 
-	Scene *_currentScene = nullptr;
+	
 	bool _fsm_status = false;
 };
 #endif

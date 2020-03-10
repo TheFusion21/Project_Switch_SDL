@@ -8,6 +8,7 @@ class Component
 {
 private:
 	friend class Object;
+	friend class Scene;
 	Component(){}
 protected:
 	Object* gameObject;
@@ -36,6 +37,12 @@ protected:
 
 	virtual std::string GetName() = 0;
 
+	static void Destroy(Component * cmpnt);
+	static void Destroy(Component * cmpnt, float time);
+
+	static void Destroy(Object * obj);
+	static void Destroy(Object * obj, float time);
+	
 };
 
 #endif

@@ -5,7 +5,7 @@
 #include "SceneManager.h"
 Object::Object() : Object(0, 0)
 {
-
+	name = "GameObject";
 }
 Object::Object(float x, float y) : enabled(true), layer(0), transform(this)
 {
@@ -90,7 +90,24 @@ Component* Object::AddComponent(Component* component)
 			return (*it);
 	}
 	components.push_back(component);
+	if (components.back()->enabled)
+	{
+		components.back()->Awake();
+		components.back()->Start();
+	}
 	return components.back();
+}
+
+void Object::RemoveCompontent(std::string name)
+{
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
+	{
+		if ((*it)->GetName() == name)
+		{
+			it = components.erase(it);
+			return;
+		}
+	}
 }
 
 
@@ -106,11 +123,8 @@ Object * Object::Instantiate(Object* object, Vector2D position)
 
 Object * Object::Instantiate(Object* object, Vector2D position, float rotation)
 {
-	SDL_Log("Instantiating Object");
 	object->transform.localRotation = rotation;
-	SDL_Log("Rotation now is %f", object->transform.localRotation);
 	object->transform.localPosition.Set(position);
-	SDL_Log("Position now is %f, %f", object->transform.localPosition.GetX(), object->transform.localPosition.GetY());
 	SceneManager::instance()._currentScene->_objects.push_back(object);
 	if (SceneManager::instance()._currentScene->_objects.back()->IsEnabled())
 	{
@@ -118,4 +132,14 @@ Object * Object::Instantiate(Object* object, Vector2D position, float rotation)
 		SceneManager::instance()._currentScene->_objects.back()->Start();
 	}
 	return SceneManager::instance()._currentScene->_objects.back();
+}
+
+Object * Object::FindByName(std::string name)
+{
+	for (std::vector<Object*>::iterator it = SceneManager::instance()._currentScene->_objects.begin(); it != SceneManager::instance()._currentScene->_objects.end(); ++it)
+	{
+		if ((*it)->name == name)
+			return (*it);
+	}
+	return nullptr;
 }

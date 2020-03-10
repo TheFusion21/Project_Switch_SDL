@@ -22,7 +22,6 @@ void SceneManager::Run(Scene *initialScene)
 	instance().push(initialScene);
 	if (_fsm_status)
 	{
-		SDL_Log("Starting with object count of %d", _currentScene->GetObjectCount());
 		for (;;)
 		{
 			if (!_fsm_status)

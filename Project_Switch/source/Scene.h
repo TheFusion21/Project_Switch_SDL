@@ -3,11 +3,16 @@
 #include <string>
 #include <vector>
 #include "Object.h"
+
+#include <map>
 class Scene
 {
 private:
 	float timePast = 0;
+	
 public:
+	std::map<Component*, float> cmpntsDestroy;
+	std::map<Object*, float> objDestroy;
 	virtual bool Init() = 0;
 
 	void Update();
@@ -22,6 +27,7 @@ public:
 		return _stateName;
 	}
 	inline int GetObjectCount() { return _objects.size(); }
+
 protected:
 	friend class Object;
 	std::string _stateName;

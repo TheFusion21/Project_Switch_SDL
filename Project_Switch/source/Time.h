@@ -9,13 +9,13 @@ private:
 	static float _deltaTime;
 	static float _unscaledDeltaTime;
 	static float _frameCount;
-
+	static float _time;
 	Time(){}
 public:
 	static const float &deltaTime;
 	static const float &unscaledDeltaTime;
 	static const float &frameCount;
-
+	static const float &time;
 	static float timeScale;
 	static float fixedTimeStep;
 	

@@ -130,26 +130,107 @@ public:
 class BaseBullet : public Component
 {
 public:
+	float speed = 1;
+	float damage = 1;
 	static const std::string name;
 	BaseBullet(Object * _gameObject) : Component(_gameObject)
 	{
 
 	}
+	
 	std::string GetName()
 	{
 		return name;
+	}
+	virtual BaseBullet * Clone(Object * _gameObject) = 0;
+};
+class DefaultBullet : public BaseBullet
+{
+public:
+	DefaultBullet(Object * _gameObject) : BaseBullet(_gameObject)
+	{
+		SpriteRenderer * renderer = (SpriteRenderer*)gameObject->AddComponent(new SpriteRenderer(gameObject));
+		renderer->sprite = Sprite::SpriteFromFile("romfs:/DefaultBullet.png");
+		
+	}
+	void Start()
+	{
+		BoxCollider2D * collider = (BoxCollider2D*)gameObject->AddComponent(new BoxCollider2D(gameObject));
+		collider->size = Vector2D(.1f, .025f);
+		SDL_Log("rotation of bullet is: %f", gameObject->transform.localRotation);
+		Destroy(gameObject, 2);
+	}
+	DefaultBullet * Clone(Object * _gameObject) override
+	{
+		DefaultBullet * clone = new DefaultBullet(_gameObject);
+
+		return clone;
 	}
 };
 const std::string BaseBullet::name = "BaseBullet";
 class BaseGun : public Component
 {
+protected:
+	int curBarrelIndex = 0;
+	float coolDown = 0;
 public:
+	enum FIREMODE
+	{
+		ALTERNATING,
+		SIMULTANEOUSLY,
+	};
+	std::vector<Vector2D*> BarrelPositions;
+	float fireRate = 5;
+	FIREMODE fireMode = ALTERNATING;
 	BaseBullet * bullet;
 
 	static const std::string name;
 	BaseGun(Object * _gameObject) : Component(_gameObject)
 	{
 
+	}
+	void Update()
+	{
+		if (BarrelPositions.size() == 0 || coolDown == 0)
+			return;
+		if (coolDown > 0)
+		{
+			if (fireMode == ALTERNATING)
+			{
+				coolDown -= Time::deltaTime * fireRate;
+			}
+			else if (fireMode == SIMULTANEOUSLY)
+			{
+				coolDown -= Time::deltaTime / BarrelPositions.size() * fireRate;
+			}
+		}
+		if (coolDown < 0)
+		{
+			coolDown = 0;
+		}
+	}
+	virtual void Shoot(Vector2D direction)
+	{
+		if (BarrelPositions.size() < 1 || coolDown > 0)
+			return;
+		double PI = 3.141592653589793;
+		float rotation = 90 - atan2(direction.GetX(), direction.GetY()) * 180 / PI;
+		if (fireMode == ALTERNATING)
+		{
+			SDL_Log("Shooting 3");
+			Object * instance = Object::Instantiate(new Object(), *BarrelPositions[curBarrelIndex], rotation);
+			instance->AddComponent(bullet->Clone(instance));
+			instance->name = "Bullet (clone)";
+
+			curBarrelIndex++;
+			if (curBarrelIndex >= BarrelPositions.size())
+				curBarrelIndex = 0;
+		}
+		else if (fireMode == SIMULTANEOUSLY)
+		{
+
+		}
+		coolDown = 1;
 	}
 	std::string GetName()
 	{
@@ -163,7 +244,7 @@ public:
 
 	SingleFireGun(Object * _gameObject) : BaseGun(_gameObject)
 	{
-
+		bullet = new DefaultBullet(gameObject);
 	}
 };
 class PlayerController : public Component
@@ -180,10 +261,16 @@ private:
 	bool inTransition = false;
 	bool canMove = true;
 	bool canShoot = true;
+	BaseGun * gun;
+	Vector2D barrel1Local;
+	Vector2D barrel2Local;
+	Vector2D barrel1Position;
+	Vector2D barrel2Position;
 public:
 	static const std::string name;
-	PlayerController(Object * _gameObject) : Component(_gameObject)
+	PlayerController(Object * _gameObject) : Component(_gameObject), barrel1Local(-0.1f, 0), barrel2Local(0.1f, 0)
 	{
+		
 		speed.Set(4, 4);
 		//COLLIDER SETUP
 		BoxCollider2D * collider2D = (BoxCollider2D*)gameObject->AddComponent(new BoxCollider2D(gameObject));
@@ -466,14 +553,22 @@ public:
 		hToVOut.trigger = "";
 		animator->AddTransition(hToVOut);
 
+		
 		SDL_Log("Created Player Controller");
 	}
 	void Start()
 	{
 		if (!verticalMode)
 			animator->OverrideCurrentAnimation(idle2AnimIndex);
+		//GUN SETUP
+		Object * playerGun = Object::Instantiate(new Object(), Vector2D(0, 0), 0);
+		playerGun->transform.parent = &gameObject->transform;
+		gun = (BaseGun*)playerGun->AddComponent(new SingleFireGun(playerGun));
+		playerGun->name = "PlayerGun";
+		gun->BarrelPositions.push_back(&barrel1Position);
+		gun->BarrelPositions.push_back(&barrel2Position);
 	}
-	void Update()
+	void UpdateMovement()
 	{
 		if (inTransition)
 		{
@@ -483,7 +578,7 @@ public:
 				verticalMode = !verticalMode;
 				inTransition = false;
 				EnableMovement();
-				//EnableShooting();
+				EnableShooting();
 			}
 			else
 			{
@@ -540,11 +635,31 @@ public:
 			ToggleMode();
 		}
 	}
+	void UpdateGun()
+	{
+		if (!canShoot)return;
+		if (Input::GetKey(Input::KeyCode::NX_X))
+		{
+			Vector2D direction(1, 0);
+			if (verticalMode)
+			{
+				direction = Vector2D(0, 1);
+			}
+			barrel1Position = gameObject->transform.GetGlobalPosition() + barrel1Local;
+			barrel2Position = gameObject->transform.GetGlobalPosition() + barrel2Local;
+			gun->Shoot(direction);
+		}
+	}
+	void Update()
+	{
+		UpdateMovement();
+		UpdateGun();
+	}
 	void ToggleMode()
 	{
 		inTransition = true;
 		DisableMovement();
-		//DisableShooting();
+		DisableShooting();
 	}
 	void DisableMovement()
 	{
@@ -578,9 +693,8 @@ public:
 		_stateName = "TestScene";
 		Object * player = Object::Instantiate(new Object(), Vector2D(0, 0), 0);
 		player->AddComponent(new PlayerController(player));
-		Object * playerGun = Object::Instantiate(new Object(), Vector2D(0, 0), 0);
-		//playerGun->transform.parent = player;
-		//playerGun->AddComponent(new SingleFireGun(playerGun));
+		player->name = "Player";
+		player->layer = 999;
 		return true;
 	}
 };

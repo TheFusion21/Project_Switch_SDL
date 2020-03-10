@@ -12,6 +12,7 @@ private:
 public:
 	//Define in which order to draw the objects
 	int layer = 0;
+	std::string name;
 	Transform transform;
 	Object();
 	Object(float x, float y);
@@ -30,15 +31,15 @@ public:
 	bool IsEnabled() { return enabled; }
 
 	Component* GetComponent(std::string name);
-
 	Component* GetComponent(int index);
-
 	inline int GetComponentCount() { return components.size(); }
-
 	Component* AddComponent(Component * component);
+	void RemoveCompontent(std::string name);
 
 	static Object * Instantiate(Object* object);
 	static Object * Instantiate(Object* object, Vector2D position);
 	static Object * Instantiate(Object* object, Vector2D position, float rotation);
+
+	static Object * FindByName(std::string name);
 };
 #endif

@@ -4,8 +4,30 @@
 #include "Renderer.h"
 #include "Collider2D.h"
 #include "Time.h"
+
 void Scene::Update()
 {
+	for (std::map<Component*, float>::iterator it = cmpntsDestroy.begin(); it != cmpntsDestroy.end(); ++it)
+	{
+		if (Time::time >= (*it).second)
+		{
+			(*it).first->gameObject->RemoveCompontent((*it).first->GetName());
+			it = cmpntsDestroy.erase(it);
+		}
+	}
+	for (std::map<Object*, float>::iterator it = objDestroy.begin(); it != objDestroy.end();)
+	{
+		if (Time::time >= (*it).second)
+		{
+			
+			_objects.erase(std::remove(_objects.begin(), _objects.end(), (*it).first), _objects.end());
+			it = objDestroy.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 	std::vector<Object*> buffer = _objects;
 	for (std::vector<Object*>::iterator  it = buffer.begin(); it != buffer.end(); ++it)
 	{

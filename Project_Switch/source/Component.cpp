@@ -1,5 +1,6 @@
 #include "Component.h"
-
+#include "SceneManager.h"
+#include "Time.h"
 Component::Component(Object* _gameObject) : gameObject(_gameObject)
 {
 }
@@ -48,4 +49,24 @@ void Component::Disable()
 		enabled = false;
 		OnDisable();
 	}
+}
+
+void Component::Destroy(Component * cmpnt)
+{
+	Destroy(cmpnt, 0);
+}
+
+void Component::Destroy(Component * cmpnt, float time)
+{
+	SceneManager::instance()._currentScene->cmpntsDestroy.insert(std::pair<Component*, float>(cmpnt, Time::time + time));
+}
+
+void Component::Destroy(Object * obj)
+{
+	Destroy(obj, 0);
+}
+
+void Component::Destroy(Object * obj, float time)
+{
+	SceneManager::instance()._currentScene->objDestroy.insert(std::pair<Object*, float>(obj, Time::time + time));
 }

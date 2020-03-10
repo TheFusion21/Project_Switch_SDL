@@ -9,11 +9,11 @@ Vector2D Transform::GetGlobalPosition()
 {
 	Vector2D pos;
 	pos.Set(localPosition);
-	Object * curParent = parent;
+	Transform * curParent = parent;
 	while (curParent != nullptr)
 	{
-		pos += curParent->transform.localPosition;
-		curParent = curParent->transform.parent;
+		pos += curParent->localPosition;
+		curParent = curParent->parent;
 	}
 	return pos;
 }
