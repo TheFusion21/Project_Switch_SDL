@@ -30,6 +30,7 @@ public:
 
 protected:
 	friend class Object;
+	friend class Physics2D;
 	std::string _stateName;
 	std::vector<Object *> _objects;
 };

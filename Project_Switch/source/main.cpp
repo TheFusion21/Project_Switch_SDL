@@ -151,18 +151,25 @@ public:
 	{
 		SpriteRenderer * renderer = (SpriteRenderer*)gameObject->AddComponent(new SpriteRenderer(gameObject));
 		renderer->sprite = Sprite::SpriteFromFile("romfs:/DefaultBullet.png");
-		
+		speed = 4;
 	}
 	void Start()
 	{
 		BoxCollider2D * collider = (BoxCollider2D*)gameObject->AddComponent(new BoxCollider2D(gameObject));
 		collider->size = Vector2D(.1f, .025f);
-		SDL_Log("rotation of bullet is: %f", gameObject->transform.localRotation);
-		Destroy(gameObject, 2);
+		Destroy(gameObject, 10);
+		RigidBody2D * rigid = (RigidBody2D*)gameObject->AddComponent(new RigidBody2D(gameObject));
+		
+		rigid->SetVelocity(Vector2D::Rotate(Vector2D::Right(), gameObject->transform.localRotation)*speed);
+		rigid->drag = 0;
+		rigid->mass = 0.2f;
+		rigid->gravityScale = 0;
 	}
 	DefaultBullet * Clone(Object * _gameObject) override
 	{
 		DefaultBullet * clone = new DefaultBullet(_gameObject);
+		clone->speed = this->speed;
+		clone->damage = this->damage;
 
 		return clone;
 	}
@@ -217,7 +224,6 @@ public:
 		float rotation = 90 - atan2(direction.GetX(), direction.GetY()) * 180 / PI;
 		if (fireMode == ALTERNATING)
 		{
-			SDL_Log("Shooting 3");
 			Object * instance = Object::Instantiate(new Object(), *BarrelPositions[curBarrelIndex], rotation);
 			instance->AddComponent(bullet->Clone(instance));
 			instance->name = "Bullet (clone)";
@@ -266,10 +272,15 @@ private:
 	Vector2D barrel2Local;
 	Vector2D barrel1Position;
 	Vector2D barrel2Position;
+	RigidBody2D * rigid2D;
 public:
 	static const std::string name;
 	PlayerController(Object * _gameObject) : Component(_gameObject), barrel1Local(-0.1f, 0), barrel2Local(0.1f, 0)
 	{
+		//rigid2D = (RigidBody2D*)gameObject->AddComponent(new RigidBody2D(gameObject));
+		//rigid2D->mass = 3;
+		//rigid2D->drag = 0.4f;
+		//rigid2D->gravityScale = 0;
 		
 		speed.Set(4, 4);
 		//COLLIDER SETUP

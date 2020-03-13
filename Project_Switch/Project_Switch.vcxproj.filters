@@ -58,6 +58,9 @@
     <ClCompile Include="source\Animator.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="source\Physics2D.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\Camera.h">
@@ -121,6 +124,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="source\SDL_Extension.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\Physics2D.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

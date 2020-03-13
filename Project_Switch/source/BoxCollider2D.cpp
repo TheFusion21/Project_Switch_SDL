@@ -14,6 +14,7 @@ void BoxCollider2D::Render()
 {
 	if (Debug::showCollider)
 	{
+		float rot = gameObject->transform.localRotation;
 		SDL_Renderer * g_renderer = GameManager::instance().GetRenderer();
 		Vector2D worldPos = GameManager::instance().camera.WorldToScreenPoint(gameObject->transform.localPosition + offset);
 		SDL_Rect dst_rect =
@@ -46,4 +47,30 @@ void BoxCollider2D::Render()
 			SDL_Extension::SDL_RenderArc(g_renderer, dst_rect.x + pixelRadius, dst_rect.y + dst_rect.h - pixelRadius, pixelRadius, 90, 180);
 		}
 	}
+}
+
+Vector2D BoxCollider2D::GetCenterPoint()
+{
+	return GameManager::instance().camera.WorldToScreenPoint(gameObject->transform.localPosition + offset);
+}
+
+Vector2D BoxCollider2D::GetClosestPoint(Vector2D pos)
+{
+	return Vector2D();
+}
+
+Rect BoxCollider2D::GetBoundingBox()
+{
+	Rect rect;
+	/*Vector2D center = GetCenterPoint();
+	SDL_Rect dst_rect =
+	{
+		center.GetX() - size.GetX() * GameManager::instance().camera.pixelPerUnit * gameObject->transform.anchor.GetX() * gameObject->transform.scale.GetX(),
+		center.GetY() - size.GetY() * GameManager::instance().camera.pixelPerUnit * gameObject->transform.anchor.GetY() * gameObject->transform.scale.GetY(),
+		size.GetX() * GameManager::instance().camera.pixelPerUnit * gameObject->transform.scale.GetX(),
+		size.GetY() * GameManager::instance().camera.pixelPerUnit * gameObject->transform.scale.GetY()
+	};
+	int pixelRadius = edgeRadius * GameManager::instance().camera.pixelPerUnit;
+	rect.Set(dst_rect.x - pixelRadius, dst_rect.y - pixelRadius, dst_rect.w + pixelRadius * 2, dst_rect.h + pixelRadius * 2);*/
+	return rect;
 }

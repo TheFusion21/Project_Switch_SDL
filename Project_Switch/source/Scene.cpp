@@ -33,6 +33,7 @@ void Scene::Update()
 	{
 		(*it)->Update();
 	}
+	timePast += Time::deltaTime;
 	if (timePast > Time::fixedTimeStep)
 	{
 		for (std::vector<Object*>::iterator it = buffer.begin(); it != buffer.end(); ++it)

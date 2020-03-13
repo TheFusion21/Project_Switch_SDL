@@ -5,6 +5,10 @@ Rect::Rect(float x, float y, float width, float height) :
 {
 }
 
+Rect::Rect() : Rect(0, 0, 0, 0)
+{
+}
+
 float Rect::GetXMin()
 {
 	return _x;
@@ -27,7 +31,7 @@ float Rect::GetYMax()
 
 Vector2D Rect::GetCenter()
 {
-	return Vector2D(_x - _width/2.0f, _y - _height/2.0f);
+	return Vector2D(_x + _width/2.0f, _y + _height/2.0f);
 }
 
 Vector2D Rect::GetPosition()

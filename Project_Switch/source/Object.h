@@ -34,6 +34,7 @@ public:
 	Component* GetComponent(int index);
 	inline int GetComponentCount() { return components.size(); }
 	Component* AddComponent(Component * component);
+	std::vector<Component*> GetComponentsWithName(std::string name);
 	void RemoveCompontent(std::string name);
 
 	static Object * Instantiate(Object* object);

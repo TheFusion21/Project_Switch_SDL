@@ -15,4 +15,8 @@ public:
 	{
 		return name;
 	}
+
+	virtual Vector2D GetCenterPoint() = 0;
+	virtual Vector2D GetClosestPoint(Vector2D pos) = 0;
+	virtual Rect GetBoundingBox() = 0;
 };

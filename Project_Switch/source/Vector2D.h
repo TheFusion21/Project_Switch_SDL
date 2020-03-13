@@ -46,6 +46,14 @@ public:
 
 	static Vector2D Lerp(Vector2D start, Vector2D end, float t);
 
+	static Vector2D Rotate(Vector2D vec, float rot);
+
+	static Vector2D Up() { return Vector2D(0, 1); }
+	static Vector2D Down() { return Vector2D(0, -1); }
+	static Vector2D Left() { return Vector2D(-1, 0); }
+	static Vector2D Right() { return Vector2D(1, 0); }
+	static Vector2D One() { return Vector2D(1, 1); }
+	static Vector2D Zero() { return Vector2D(); }
 private:
 	float m_x;
 	float m_y;

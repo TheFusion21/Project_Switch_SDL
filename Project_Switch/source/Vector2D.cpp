@@ -121,4 +121,16 @@ Vector2D Vector2D::Lerp(Vector2D start, Vector2D end, float t)
 	return Vector2D(lerp(start.GetX(), end.GetX(), t), lerp(start.GetY(), end.GetY(), t));
 }
 
+Vector2D Vector2D::Rotate(Vector2D vec, float rot)
+{
+	Vector2D newVec;
+	double PI = 3.141592653589793;
+	float theta = rot * PI / 180.0f;
+	float cs = cos(theta);
+	float sn = sin(theta);
+
+	newVec.SetX(vec.GetX() * cs - vec.GetY() * sn);
+	newVec.SetY(vec.GetX() * sn + vec.GetY() * cs);
+	return newVec;
+}
 

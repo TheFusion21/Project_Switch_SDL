@@ -112,6 +112,7 @@
     <ClCompile Include="source\Input.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\Object.cpp" />
+    <ClCompile Include="source\Physics2D.cpp" />
     <ClCompile Include="source\Rect.cpp" />
     <ClCompile Include="source\Renderer.cpp" />
     <ClCompile Include="source\Rigidbody2D.cpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="source\GameManager.h" />
     <ClInclude Include="source\Input.h" />
     <ClInclude Include="source\Object.h" />
+    <ClInclude Include="source\Physics2D.h" />
     <ClInclude Include="source\Rect.h" />
     <ClInclude Include="source\Renderer.h" />
     <ClInclude Include="source\Rigidbody2D.h" />

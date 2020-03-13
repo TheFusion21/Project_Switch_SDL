@@ -82,8 +82,8 @@ Component* Object::GetComponent(int index)
 }
 Component* Object::AddComponent(Component* component)
 {
-	if (component->GetName().find("Collider") != std::string::npos)
-		AddComponent(new RigidBody2D(this));
+	/*if (component->GetName().find("Collider") != std::string::npos)
+		AddComponent(new RigidBody2D(this));*/
 	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
 	{
 		if ((*it)->GetName() == component->GetName() || (*it)->GetName().find(component->GetName()) != std::string::npos)
@@ -96,6 +96,17 @@ Component* Object::AddComponent(Component* component)
 		components.back()->Start();
 	}
 	return components.back();
+}
+
+std::vector<Component*> Object::GetComponentsWithName(std::string name)
+{
+	std::vector<Component*> list;
+	for (std::vector<Component*>::iterator it = components.begin(); it != components.end(); ++it)
+	{
+		if ((*it)->GetName() == name || (*it)->GetName().find(name) != std::string::npos)
+			list.push_back((*it));
+	}
+	return list;
 }
 
 void Object::RemoveCompontent(std::string name)

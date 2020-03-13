@@ -9,6 +9,7 @@ class Component
 private:
 	friend class Object;
 	friend class Scene;
+	friend class Physics2D;
 	Component(){}
 protected:
 	Object* gameObject;
@@ -30,19 +31,22 @@ protected:
 	virtual void OnEnable();
 	//This function is called when the object becomes disabled.
 	virtual void OnDisable();
-	//This function is called to enable the component
-	void Enable();
-	//This function is called to disable the component
-	void Disable();
-
-	virtual std::string GetName() = 0;
+	
+	
 
 	static void Destroy(Component * cmpnt);
 	static void Destroy(Component * cmpnt, float time);
 
 	static void Destroy(Object * obj);
 	static void Destroy(Object * obj, float time);
-	
+	//This function is called to enable the component
+	void Enable();
+	//This function is called to disable the component
+	void Disable();
+
+	bool IsEnabled();
+
+	virtual std::string GetName() = 0;
 };
 
 #endif

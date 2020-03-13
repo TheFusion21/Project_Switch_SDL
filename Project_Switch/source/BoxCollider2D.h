@@ -1,5 +1,6 @@
 #pragma once
 #include "Collider2D.h"
+#include "Rect.h"
 class BoxCollider2D : public Collider2D
 {
 public:
@@ -16,4 +17,7 @@ public:
 	{
 		return name;
 	}
+	Vector2D GetCenterPoint();
+	Vector2D GetClosestPoint(Vector2D pos);
+	Rect GetBoundingBox();
 };

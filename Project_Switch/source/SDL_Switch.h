@@ -8,3 +8,4 @@
 #include "SpriteRenderer.h"
 #include "BoxCollider2D.h"
 #include "Animator.h"
+#include "Rigidbody2D.h"

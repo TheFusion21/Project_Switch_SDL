@@ -51,6 +51,11 @@ void Component::Disable()
 	}
 }
 
+bool Component::IsEnabled()
+{
+	return enabled;
+}
+
 void Component::Destroy(Component * cmpnt)
 {
 	Destroy(cmpnt, 0);
